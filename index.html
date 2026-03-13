@@ -1369,12 +1369,12 @@ function ProfileScreen({ navigate }) {
       <div style={SL}>Account</div>
       <div style={{ padding: "0 20px" }}>
         {[
-          { icon: "user", label: "Personal Information", sub: "Name, email, phone", col: t.accent },
-          { icon: "health", label: "Health Profile", sub: "Allergies, conditions, blood type", col: t.green },
+          { icon: "user", label: "Personal Information", sub: "Name, email, phone", col: t.accent, screen: "personal-info" },
+          { icon: "health", label: "Health Profile", sub: "Allergies, conditions, blood type", col: t.green, screen: "health-profile" },
           { icon: "bell", label: "Notifications", sub: "Reminders, alerts, updates", col: t.purple },
           { icon: "info", label: "Help & Support", sub: "FAQs, contact us", col: t.teal },
         ].map((opt, i) => (
-          <div key={i} style={C({ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" })}>
+          <div key={i} onClick={() => opt.screen && navigate(opt.screen)} style={C({ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" })}>
             <div style={{ width: 42, height: 42, borderRadius: 13, background: opt.col + "15", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Icon name={opt.icon} size={18} color={opt.col} />
             </div>
@@ -1386,6 +1386,134 @@ function ProfileScreen({ navigate }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ── Personal Information ────────────────────────────────
+function PersonalInfoScreen() {
+  const [saved, setSaved] = useState(false);
+  const [form, setForm] = useState({ name: "Alex Rivera", email: "alex.rivera@email.com", phone: "+91 98765 43210", hospital: "Pranaam Hospital" });
+  const upd = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const inputStyle = { width: "100%", padding: "12px 14px", borderRadius: 12, border: `1px solid ${t.cardBorder}`, background: t.bg, fontSize: 14, fontFamily: "'DM Sans'", color: t.text, outline: "none" };
+
+  return (
+    <div style={{ padding: "0 20px 24px" }}>
+      <div style={C({ marginTop: 12, display: "flex", alignItems: "center", gap: 12, background: t.accentSoft, borderColor: t.accent + "30" })}>
+        <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, #2563EB, #7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: "#fff", fontWeight: 800 }}>AR</div>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: 16, color: t.text }}>Personal Information</div>
+          <div style={{ fontSize: 12, color: t.textMuted }}>Manage your basic details</div>
+        </div>
+      </div>
+
+      {[
+        { key: "name", label: "Full Name", icon: "👤", type: "text" },
+        { key: "email", label: "Email Address", icon: "✉️", type: "email" },
+        { key: "phone", label: "Phone Number", icon: "📱", type: "tel" },
+        { key: "hospital", label: "Preferred Hospital", icon: "🏥", type: "text" },
+      ].map(field => (
+        <div key={field.key} style={{ marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+            <span style={{ fontSize: 14 }}>{field.icon}</span>
+            <label style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{field.label}</label>
+          </div>
+          <input type={field.type} value={form[field.key]} onChange={e => upd(field.key, e.target.value)} style={inputStyle} />
+        </div>
+      ))}
+
+      <button onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000); }}
+        style={B(saved ? t.green : t.accent, "#fff", { width: "100%", justifyContent: "center", padding: 14, fontSize: 15, borderRadius: 14, marginTop: 8, boxShadow: sh2 })}>
+        {saved ? "✓ Saved Successfully" : "Save Changes"}
+      </button>
+    </div>
+  );
+}
+
+// ── Health Profile ────────────────────────────────────
+function HealthProfileScreen() {
+  const [saved, setSaved] = useState(false);
+  const [form, setForm] = useState({ allergies: "Penicillin, Dust mites", bloodGroup: "O+", height: "175", weight: "72", personalHistory: "Type 2 Diabetes (diagnosed 2022), Hypertension (diagnosed 2021)", familyHistory: "" });
+  const upd = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const inputStyle = { width: "100%", padding: "12px 14px", borderRadius: 12, border: `1px solid ${t.cardBorder}`, background: t.bg, fontSize: 14, fontFamily: "'DM Sans'", color: t.text, outline: "none" };
+  const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+  return (
+    <div style={{ padding: "0 20px 24px" }}>
+      <div style={C({ marginTop: 12, display: "flex", alignItems: "center", gap: 12, background: t.greenSoft, borderColor: t.green + "30" })}>
+        <div style={{ width: 48, height: 48, borderRadius: 14, background: t.green, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Icon name="health" size={22} color="#fff" />
+        </div>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: 16, color: t.text }}>Health Profile</div>
+          <div style={{ fontSize: 12, color: t.textMuted }}>Your medical information for better AI insights</div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+          <span style={{ fontSize: 14 }}>⚠️</span>
+          <label style={{ fontSize: 13, fontWeight: 700, color: t.text }}>Allergies</label>
+        </div>
+        <input value={form.allergies} onChange={e => upd("allergies", e.target.value)} placeholder="e.g. Penicillin, Peanuts, Latex" style={inputStyle} />
+      </div>
+
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+          <span style={{ fontSize: 14 }}>🩸</span>
+          <label style={{ fontSize: 13, fontWeight: 700, color: t.text }}>Blood Group</label>
+        </div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {bloodGroups.map(bg => (
+            <button key={bg} onClick={() => upd("bloodGroup", bg)}
+              style={B(form.bloodGroup === bg ? t.red : t.bg, form.bloodGroup === bg ? "#fff" : t.textMid, { padding: "8px 14px", borderRadius: 10, fontSize: 13, border: `1px solid ${form.bloodGroup === bg ? t.red : t.cardBorder}`, minWidth: 44, justifyContent: "center" })}>
+              {bg}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+            <span style={{ fontSize: 14 }}>📏</span>
+            <label style={{ fontSize: 13, fontWeight: 700, color: t.text }}>Height (cm)</label>
+          </div>
+          <input type="number" value={form.height} onChange={e => upd("height", e.target.value)} style={inputStyle} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+            <span style={{ fontSize: 14 }}>⚖️</span>
+            <label style={{ fontSize: 13, fontWeight: 700, color: t.text }}>Weight (kg)</label>
+          </div>
+          <input type="number" value={form.weight} onChange={e => upd("weight", e.target.value)} style={inputStyle} />
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+          <span style={{ fontSize: 14 }}>📋</span>
+          <label style={{ fontSize: 13, fontWeight: 700, color: t.text }}>Personal Medical History</label>
+        </div>
+        <textarea value={form.personalHistory} onChange={e => upd("personalHistory", e.target.value)} rows={3} placeholder="e.g. Diabetes, Hypertension, surgeries, past conditions..." style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }} />
+      </div>
+
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+          <span style={{ fontSize: 14 }}>👨‍👩‍👧‍👦</span>
+          <label style={{ fontSize: 13, fontWeight: 700, color: t.text }}>Family Medical History</label>
+        </div>
+        <textarea value={form.familyHistory} onChange={e => upd("familyHistory", e.target.value)} rows={4} placeholder="e.g. Father - heart disease, Mother - diabetes, Grandmother - breast cancer..." style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }} />
+        <div style={C({ marginTop: 8, marginBottom: 0, background: "linear-gradient(135deg, #ECFEFF, #EFF4FF)", borderColor: t.teal + "33", padding: "10px 12px", display: "flex", gap: 8, alignItems: "flex-start" })}>
+          <span style={{ fontSize: 16, flexShrink: 0 }}>🤖</span>
+          <div style={{ fontSize: 12, color: t.teal, lineHeight: 1.5 }}>Be as descriptive as you want. <strong>Youbot</strong> will analyse and extract information accordingly to provide you more personalized health insights.</div>
+        </div>
+      </div>
+
+      <button onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000); }}
+        style={B(saved ? t.green : "linear-gradient(135deg, #059669, #0891B2)", "#fff", { width: "100%", justifyContent: "center", padding: 14, fontSize: 15, borderRadius: 14, marginTop: 4, boxShadow: sh2 })}>
+        {saved ? "✓ Profile Saved" : "Save Health Profile"}
+      </button>
     </div>
   );
 }
@@ -1744,7 +1872,7 @@ function App() {
     { id: "explore", label: "Explore", icon: "compass", screen: "explore" },
   ];
 
-  const titles = { explore: "Explore", profile: "Profile", "blood-report": "Lab Results", "med-facts": screenData?.medName || "Drug Facts", "appt-detail": "Appointment Details", schedule: "Schedule Visit", "youbot-chat": screenData?.title || "Youbot", "med-order": "Order Medicines", "med-checkout": "Checkout", "lab-tests": "Lab Tests", "lab-checkout": "Book Lab Test" };
+  const titles = { explore: "Explore", profile: "Profile", "personal-info": "Personal Information", "health-profile": "Health Profile", "blood-report": "Lab Results", "med-facts": screenData?.medName || "Drug Facts", "appt-detail": "Appointment Details", schedule: "Schedule Visit", "youbot-chat": screenData?.title || "Youbot", "med-order": "Order Medicines", "med-checkout": "Checkout", "lab-tests": "Lab Tests", "lab-checkout": "Book Lab Test" };
   const isSub = !mains.includes(screen);
 
   return (
@@ -1778,6 +1906,8 @@ function App() {
         {screen === "schedule" && <ScheduleScreen navigate={navigate} data={screenData} />}
         {screen === "explore" && <ExploreScreen navigate={navigate} />}
         {screen === "profile" && <ProfileScreen navigate={navigate} />}
+        {screen === "personal-info" && <PersonalInfoScreen />}
+        {screen === "health-profile" && <HealthProfileScreen />}
         {screen === "med-order" && <MedOrderScreen navigate={navigate} />}
         {screen === "med-checkout" && <MedCheckoutScreen data={screenData} />}
         {screen === "lab-tests" && <LabTestsScreen navigate={navigate} />}
