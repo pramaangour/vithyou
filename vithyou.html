@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Vithyou — Your Health Companion</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #F7F8FC; }
+    body { display: flex; justify-content: center; font-family: 'DM Sans', sans-serif; }
+    #root { width: 100%; max-width: 430px; min-height: 100vh; position: relative; background: #F7F8FC; box-shadow: 0 0 40px rgba(0,0,0,0.12); }
+    ::-webkit-scrollbar { display: none; }
+    * { -webkit-tap-highlight-color: transparent; }
+    input, button, textarea { font-family: 'DM Sans', sans-serif; }
+    a { color: inherit; }
+    @keyframes pulse { 0%,100%{transform:scale(0.7);opacity:0.4} 50%{transform:scale(1);opacity:1} }
+    @media (max-width: 430px) { #root { box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
+    const { useState, useRef, useEffect } = React;
+
+
+// ─── Light Theme ──────────────────────────────────────────
+const t = {
+  bg: "#F7F8FC",
+  bgAlt: "#FFFFFF",
+  card: "#FFFFFF",
+  cardBorder: "#E8ECF4",
+  accent: "#2563EB",
+  accentSoft: "#EFF4FF",
+  accentMid: "#BFCFFF",
+  green: "#059669",
+  greenSoft: "#ECFDF5",
+  red: "#DC2626",
+  redSoft: "#FFF0F0",
+  yellow: "#D97706",
+  yellowSoft: "#FFFBEB",
+  purple: "#7C3AED",
+  purpleSoft: "#F5F3FF",
+  teal: "#0891B2",
+  tealSoft: "#ECFEFF",
+  text: "#0F172A",
+  textMid: "#334155",
+  textMuted: "#64748B",
+  textDim: "#94A3B8",
+};
+
+const sh = "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)";
+const sh2 = "0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06)";
+
+// ─── Icons ────────────────────────────────────────────────
+const Icon = ({ name, size = 20, color = "currentColor" }) => {
+  const p = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" };
+  const icons = {
+    home: <svg {...p}><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+    health: <svg {...p}><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
+    pill: <svg {...p}><path d="M10.5 20H4a2 2 0 01-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 011.66.9l.82 1.2a2 2 0 001.66.9H20a2 2 0 012 2v3"/><circle cx="18" cy="18" r="4"/><path d="M15.5 15.5l5 5"/></svg>,
+    calendar: <svg {...p}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+    sparkle: <svg {...p}><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M5 3l.75 2.25L8 6l-2.25.75L5 9l-.75-2.25L2 6l2.25-.75z"/><path d="M19 15l.75 2.25L22 18l-2.25.75L19 21l-.75-2.25L16 18l2.25-.75z"/></svg>,
+    chevronRight: <svg {...p} strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>,
+    chevronLeft: <svg {...p} strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>,
+    upload: <svg {...p}><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>,
+    send: <svg {...p}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+    bell: <svg {...p}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>,
+    cart: <svg {...p}><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.97-1.67l1.65-9.33H6"/></svg>,
+    info: <svg {...p}><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+    phone: <svg {...p}><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>,
+    clock: <svg {...p}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+    user: <svg {...p}><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+    check: <svg {...p} strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>,
+    book: <svg {...p}><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>,
+    play: <svg {...p} fill={color} stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+    compass: <svg {...p}><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>,
+    flame: <svg {...p}><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 01-7 7 7 7 0 01-7-7c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>,
+    brain: <svg {...p}><path d="M9.5 2A2.5 2.5 0 017 4.5v0A2.5 2.5 0 014.5 7v0a2.5 2.5 0 010 5v0A2.5 2.5 0 017 14.5v0A2.5 2.5 0 019.5 17H12"/><path d="M14.5 2A2.5 2.5 0 0117 4.5v0A2.5 2.5 0 0119.5 7v0a2.5 2.5 0 010 5v0A2.5 2.5 0 0117 14.5v0A2.5 2.5 0 0114.5 17H12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>,
+    leaf: <svg {...p}><path d="M2 22c5.5-5.5 8-12 8-20 6 0 12 5.5 12 12S18 22 12 22a14 14 0 01-10 0z"/></svg>,
+    dumbbell: <svg {...p}><line x1="6.5" y1="6.5" x2="17.5" y2="17.5"/><line x1="8" y1="11" x2="11" y2="8"/><line x1="14" y1="14" x2="17" y2="11"/><line x1="3" y1="9" x2="9" y2="3"/><line x1="15" y1="21" x2="21" y2="15"/></svg>,
+    heart2: <svg {...p} fill={color} stroke="none"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>,
+    link: <svg {...p}><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>,
+    plus: <svg {...p} strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  };
+  return icons[name] || null;
+};
+
+// ─── Helpers ──────────────────────────────────────────────
+const C = (extra = {}) => ({ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: 16, marginBottom: 12, boxShadow: sh, ...extra });
+const B = (bg, color, extra = {}) => ({ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, background: bg, color, transition: "all 0.15s", ...extra });
+const P = (bg, color) => ({ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 9px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: bg, color });
+const SL = { fontSize: 11, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: t.textMuted, padding: "16px 20px 10px" };
+
+// ─── Data ─────────────────────────────────────────────────
+const healthRecords = [
+  { id: 1, title: "Complete Blood Panel", date: "Feb 28, 2025", lab: "LabCorp", status: "reviewed", alerts: 2 },
+  { id: 2, title: "Lipid Profile", date: "Jan 15, 2025", lab: "Quest Diagnostics", status: "normal", alerts: 0 },
+  { id: 3, title: "Thyroid Function (TSH)", date: "Dec 5, 2024", lab: "LabCorp", status: "flagged", alerts: 1 },
+  { id: 4, title: "HbA1c / Glucose", date: "Nov 20, 2024", lab: "BioReference", status: "normal", alerts: 0 },
+];
+
+const bloodWork = {
+  1: {
+    title: "Complete Blood Panel", date: "February 28, 2025",
+    lab: "LabCorp — Tacoma, WA", orderedBy: "Dr. Sarah Chen",
+    markers: [
+      { name: "WBC", value: 10.8, unit: "K/uL", hi: 11.0, lo: 4.5, status: "high" },
+      { name: "RBC", value: 4.92, unit: "M/uL", hi: 5.9, lo: 4.5, status: "normal" },
+      { name: "Hemoglobin", value: 14.2, unit: "g/dL", hi: 17.5, lo: 13.5, status: "normal" },
+      { name: "Hematocrit", value: 42.1, unit: "%", hi: 53, lo: 41, status: "normal" },
+      { name: "Platelets", value: 387, unit: "K/uL", hi: 400, lo: 150, status: "normal" },
+      { name: "Neutrophils", value: 78.2, unit: "%", hi: 70, lo: 50, status: "high" },
+      { name: "Lymphocytes", value: 16.4, unit: "%", hi: 40, lo: 20, status: "low" },
+      { name: "CRP", value: 2.1, unit: "mg/L", hi: 1.0, lo: 0, status: "high" },
+    ],
+  },
+};
+
+const meds = [
+  { id: 1, name: "Metformin", dose: "500mg", freq: "Twice daily", next: "8:00 AM", stock: 12, color: t.accent },
+  { id: 2, name: "Lisinopril", dose: "10mg", freq: "Once daily", next: "9:00 AM", stock: 28, color: t.purple },
+  { id: 3, name: "Atorvastatin", dose: "20mg", freq: "Once at night", next: "10:00 PM", stock: 5, color: t.yellow },
+  { id: 4, name: "Vitamin D3", dose: "2000 IU", freq: "Once daily", next: "8:00 AM", stock: 60, color: t.green },
+];
+
+const facts = {
+  1: {
+    name: "Metformin (Metformin HCl)", cls: "Biguanide · Antidiabetic",
+    how: "Metformin reduces hepatic glucose production and improves insulin sensitivity in peripheral tissues. It also slows intestinal glucose absorption, keeping post-meal blood sugar levels lower.",
+    uses: ["Type 2 diabetes mellitus", "Prediabetes prevention", "PCOS (off-label)", "Weight management support"],
+    side: ["Nausea / GI upset (common at start)", "Diarrhea", "Lactic acidosis (rare)", "Vitamin B12 deficiency (long-term)"],
+    inter: ["Contrast dye — hold 48h before imaging", "Alcohol increases lactic acidosis risk", "Certain diuretics may reduce efficacy"],
+    tips: "Take with food to minimize GI side effects. Regular B12 monitoring recommended for long-term users.",
+    videos: [
+      { title: "How Metformin Works — Mechanism Explained", channel: "Ninja Nerd", dur: "12:34", url: "https://www.youtube.com/results?search_query=metformin+mechanism+of+action" },
+      { title: "Metformin Side Effects & What to Expect", channel: "Pharmacist Explains", dur: "8:21", url: "https://www.youtube.com/results?search_query=metformin+side+effects+pharmacist" },
+      { title: "Metformin for Diabetes — Patient Guide", channel: "Doctor Mike", dur: "9:05", url: "https://www.youtube.com/results?search_query=metformin+diabetes+patient+guide" },
+    ],
+    articles: [
+      { title: "Metformin: Uses, Dosage, Side Effects", source: "Mayo Clinic", tag: "Reference", url: "https://www.mayoclinic.org/drugs-supplements/metformin-oral-route/description/drg-20067074" },
+      { title: "Metformin and Longevity Research", source: "NIH / PubMed", tag: "Research", url: "https://pubmed.ncbi.nlm.nih.gov/?term=metformin+longevity" },
+      { title: "Understanding Your Diabetes Medication", source: "WebMD", tag: "Patient Guide", url: "https://www.webmd.com/diabetes/metformin-overview" },
+    ],
+  },
+  2: {
+    name: "Lisinopril", cls: "ACE Inhibitor · Antihypertensive",
+    how: "Lisinopril inhibits ACE, blocking conversion of angiotensin I to angiotensin II. This leads to vasodilation and significantly reduced blood pressure and cardiac workload.",
+    uses: ["Hypertension", "Heart failure", "Post-MI cardiac protection", "Diabetic nephropathy"],
+    side: ["Dry persistent cough (very common)", "Hyperkalemia", "Angioedema (rare but serious)", "Dizziness on standing"],
+    inter: ["NSAIDs reduce efficacy and raise kidney risk", "Potassium supplements — hyperkalemia risk", "Diuretics may cause excessive blood pressure drop"],
+    tips: "Can be taken with or without food. Monitor blood pressure and potassium levels regularly.",
+    videos: [
+      { title: "How ACE Inhibitors Lower Blood Pressure", channel: "Osmosis", dur: "10:05", url: "https://www.youtube.com/results?search_query=lisinopril+ACE+inhibitor+explained" },
+      { title: "The Lisinopril Cough — Why It Happens", channel: "Medcram", dur: "6:44", url: "https://www.youtube.com/results?search_query=lisinopril+cough+ACE+inhibitor" },
+    ],
+    articles: [
+      { title: "Lisinopril — Drug Information", source: "Mayo Clinic", tag: "Reference", url: "https://www.mayoclinic.org/drugs-supplements/lisinopril-oral-route/description/drg-20069597" },
+      { title: "High Blood Pressure Medications", source: "American Heart Association", tag: "Guide", url: "https://www.heart.org/en/health-topics/high-blood-pressure/changes-you-can-make-to-manage-high-blood-pressure/types-of-blood-pressure-medications" },
+    ],
+  },
+  3: {
+    name: "Atorvastatin (Lipitor)", cls: "HMG-CoA Reductase Inhibitor · Statin",
+    how: "Atorvastatin inhibits HMG-CoA reductase, the rate-limiting enzyme in hepatic cholesterol synthesis. It reduces LDL production and upregulates LDL receptors, clearing more cholesterol from the blood.",
+    uses: ["High LDL cholesterol", "Cardiovascular disease prevention", "Mixed dyslipidemia", "Familial hypercholesterolemia"],
+    side: ["Muscle aches / myopathy", "Elevated liver enzymes", "Rhabdomyolysis (rare)", "Cognitive changes (rare)"],
+    inter: ["Grapefruit juice significantly raises blood levels", "Cyclosporine increases statin toxicity", "Gemfibrozil — rhabdomyolysis risk"],
+    tips: "Best taken in the evening as cholesterol synthesis peaks at night. Avoid grapefruit juice entirely.",
+    videos: [
+      { title: "How Statins Work — Cholesterol Pharmacology", channel: "Ninja Nerd", dur: "14:20", url: "https://www.youtube.com/results?search_query=atorvastatin+statin+mechanism+of+action" },
+      { title: "Statin Side Effects: Muscle Pain Explained", channel: "Medcram", dur: "9:15", url: "https://www.youtube.com/results?search_query=statin+muscle+pain+side+effects" },
+    ],
+    articles: [
+      { title: "Atorvastatin (Lipitor) Information", source: "Mayo Clinic", tag: "Reference", url: "https://www.mayoclinic.org/drugs-supplements/atorvastatin-oral-route/description/drg-20049179" },
+      { title: "Statins: What You Need to Know", source: "Harvard Health", tag: "Patient Guide", url: "https://www.health.harvard.edu/heart-health/statins-what-you-need-to-know" },
+    ],
+  },
+  4: {
+    name: "Vitamin D3 (Cholecalciferol)", cls: "Fat-Soluble Vitamin · Supplement",
+    how: "D3 converts in the liver to 25-hydroxyvitamin D, then in the kidneys to active calcitriol. Calcitriol regulates calcium absorption, supports bone mineralization, modulates immunity, and influences gene expression throughout the body.",
+    uses: ["Vitamin D deficiency treatment", "Bone health / osteoporosis prevention", "Immune system support", "Mood and mental health support"],
+    side: ["Nausea (only at excessive doses)", "Hypercalcemia with toxicity", "Fatigue (rare at standard doses)"],
+    inter: ["Thiazide diuretics — hypercalcemia risk", "Digoxin — hypercalcemia worsens toxicity", "Corticosteroids reduce absorption"],
+    tips: "Take with a fat-containing meal for best absorption. 2000 IU/day is generally safe. Test serum 25-OH-D levels annually.",
+    videos: [
+      { title: "Vitamin D Deficiency — Symptoms & Signs", channel: "Dr. Eric Berg", dur: "11:42", url: "https://www.youtube.com/results?search_query=vitamin+D3+deficiency+symptoms" },
+      { title: "How Much Vitamin D Do You Really Need?", channel: "FoundMyFitness", dur: "18:30", url: "https://www.youtube.com/results?search_query=vitamin+D3+optimal+dosage+science" },
+    ],
+    articles: [
+      { title: "Vitamin D: Fact Sheet for Health Professionals", source: "NIH ODS", tag: "Official", url: "https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/" },
+      { title: "Vitamin D and Your Health", source: "Harvard Health", tag: "Patient Guide", url: "https://www.health.harvard.edu/staying-healthy/vitamin-d-and-your-health" },
+      { title: "Vitamin D Deficiency: Symptoms & Treatment", source: "Cleveland Clinic", tag: "Clinical", url: "https://my.clevelandclinic.org/health/diseases/15050-vitamin-d-vitamin-d-deficiency" },
+    ],
+  },
+};
+
+const doctors = [
+  { id: 1, name: "Dr. Sarah Chen", specialty: "Primary Care", hospital: "Tacoma General", nextAvail: "Mar 14", avatar: "SC", color: "#2563EB" },
+  { id: 2, name: "Dr. Marcus Webb", specialty: "Cardiologist", hospital: "MultiCare Health", nextAvail: "Mar 19", avatar: "MW", color: "#7C3AED" },
+  { id: 3, name: "Dr. Priya Nair", specialty: "Endocrinologist", hospital: "Virginia Mason", nextAvail: "Mar 22", avatar: "PN", color: "#059669" },
+  { id: 4, name: "Dr. James Torres", specialty: "Hematologist", hospital: "Tacoma General", nextAvail: "Apr 2", avatar: "JT", color: "#D97706" },
+];
+
+const appointments = [
+  { id: 1, doctorId: 1, date: "Mar 14, 2025", time: "10:30 AM", type: "Annual Checkup", status: "confirmed", windowStart: "10:15 AM", windowEnd: "10:45 AM", room: "Clinic 3B", waitEstimate: "~8 min" },
+  { id: 2, doctorId: 2, date: "Mar 19, 2025", time: "2:00 PM", type: "Cardiology Follow-up", status: "confirmed", windowStart: "1:50 PM", windowEnd: "2:20 PM", room: "Heart Center 5", waitEstimate: "~15 min" },
+];
+
+const prevChats = [
+  { id: 1, title: "Blood Work Results — Feb 28", preview: "Your WBC is slightly elevated. This could indicate a mild infection or inflammatory response…", date: "Today", icon: "🩸", context: "bloodwork" },
+  { id: 2, title: "Metformin Side Effects", preview: "You asked about nausea with Metformin. Try taking it with a meal to reduce GI effects…", date: "Yesterday", icon: "💊", context: "general" },
+  { id: 3, title: "High Blood Pressure Tips", preview: "There are several lifestyle changes that can complement your Lisinopril…", date: "Mar 5", icon: "❤️", context: "general" },
+  { id: 4, title: "Vitamin D Deficiency Q&A", preview: "Based on your levels, 2000 IU daily should be sufficient. Retest in 3 months…", date: "Feb 20", icon: "☀️", context: "general" },
+  { id: 5, title: "Preparing for Cardiology Appt", preview: "Things to discuss with Dr. Webb: recent fatigue, any chest tightness, medication review…", date: "Feb 18", icon: "🏥", context: "general" },
+];
+
+// ─── AI ───────────────────────────────────────────────────
+// ─── Youbot Smart Response Engine (no API needed) ────────
+const youbotResponses = {
+  greetings: [
+    "Hey there! 👋 I'm Youbot, your personal health assistant. I can help you understand your medications, blood work, symptoms, or just answer general health questions. What's on your mind?",
+    "Hi! Great to hear from you. I'm here to help with anything health-related — medications, lab results, wellness tips, or questions for your doctor. How can I help?",
+  ],
+  bloodwork: [
+    "Looking at your Complete Blood Panel from Feb 28th, a few things stand out. Your WBC at 10.8 K/uL is near the top of the normal range, and your Neutrophils (78.2%) are elevated while Lymphocytes (16.4%) are a bit low — this pattern often appears with a mild infection, stress, or inflammation.\n\nYour CRP at 2.1 mg/L is also slightly above normal (max 1.0), which is another inflammation marker worth noting.\n\nThe good news: your RBC, Hemoglobin, Hematocrit, and Platelets are all perfectly normal. 🎉 Definitely worth mentioning to Dr. Chen at your next visit — she may want to recheck in a few weeks.",
+    "Great question about your blood work! The main flags are: elevated Neutrophils (78.2%), low Lymphocytes (16.4%), and a slightly high CRP (2.1 mg/L). Together these suggest your immune system may have been responding to something — could be as simple as a mild cold or stress.\n\nEverything else looks solid. I'd bring this up with Dr. Chen and ask if a follow-up panel in 4–6 weeks makes sense.",
+  ],
+  medications: [
+    "You're currently on four medications:\n\n💊 **Metformin (500mg)** — manages your blood sugar for Type 2 diabetes\n💊 **Lisinopril (10mg)** — keeps your blood pressure in check\n💊 **Atorvastatin (20mg)** — lowers LDL (bad) cholesterol\n💊 **Vitamin D3 (2000 IU)** — supplements your vitamin D levels\n\nAll four work together to protect your heart, blood vessels, and metabolism. Always take them as prescribed and flag any side effects to your doctor!",
+    "Your medication list is focused on cardiovascular and metabolic health. Metformin handles blood sugar, Lisinopril manages blood pressure, Atorvastatin tackles cholesterol, and Vitamin D3 supports bone health and immunity. It's a solid combination — just make sure you're taking them consistently!",
+  ],
+  metformin: [
+    "Metformin is a first-line diabetes medication that works by reducing the amount of glucose your liver releases and making your cells more sensitive to insulin. 🩺\n\nThe most common side effect is GI upset (nausea, diarrhea) — especially when you first start. Taking it with food helps a lot. Long-term, it can lower B12 levels, so your doctor may monitor that.\n\nOne important note: if you ever need contrast dye for imaging (like a CT scan), let them know you're on Metformin — you'll need to pause it briefly.",
+  ],
+  lisinopril: [
+    "Lisinopril is an ACE inhibitor — it relaxes your blood vessels by blocking a hormone that causes them to tighten. This lowers blood pressure and reduces the strain on your heart. ❤️\n\nThe most famous side effect is a dry, persistent cough — it affects about 10-15% of people. If that becomes bothersome, there are alternative medications your doctor can switch you to.\n\nAlso watch out for dizziness when you stand up quickly (especially in the morning). Monitor your potassium levels too if you're eating a high-potassium diet.",
+  ],
+  cholesterol: [
+    "Great question! Your Atorvastatin is working to lower your LDL (bad) cholesterol by blocking an enzyme your liver uses to make it. 📉\n\nOn the lifestyle side: reducing saturated fats (red meat, full-fat dairy), adding more fiber (oats, beans, psyllium husk!), and getting regular cardio can all complement the medication.\n\nOne thing to avoid: grapefruit juice — it significantly increases Atorvastatin blood levels, which can raise the risk of muscle side effects.",
+  ],
+  bloodpressure: [
+    "There are several evidence-backed ways to support healthy blood pressure alongside your Lisinopril:\n\n🧂 Reduce sodium — aim for under 2,300mg/day (most people eat double this)\n🏃 Exercise regularly — even 30 min walks 5x/week makes a real difference\n🧘 Manage stress — cortisol spikes raise BP temporarily but chronically if unchecked\n🥦 Eat more potassium-rich foods (bananas, spinach, sweet potatoes) — counterbalances sodium\n\nSome people can reduce medication over time with these changes, but always talk to Dr. Chen before adjusting your dose.",
+  ],
+  sleep: [
+    "Sleep is genuinely one of the most powerful levers for your health — it affects blood pressure, blood sugar, inflammation (hello, CRP!), and mental health all at once. 🌙\n\nFor better sleep: keep a consistent bedtime, avoid screens 30–60 min before bed, keep your room cool (~65–68°F), and limit caffeine after 2pm.\n\nMatthew Walker's work shows that even one bad night of sleep raises inflammatory markers like CRP — which is actually relevant to your recent blood work!",
+  ],
+  exercise: [
+    "For your health profile, a mix of Zone 2 cardio and light strength training would be ideal. 💪\n\nZone 2 cardio (brisk walking, light jogging, cycling where you can still hold a conversation) for 150+ minutes per week has been shown to improve insulin sensitivity, lower blood pressure, and reduce cardiovascular risk.\n\nStrength training 2–3x/week helps with blood sugar regulation too — muscle tissue is your body's biggest glucose sponge. Even bodyweight exercises count!\n\nStart where you are and build gradually. Consistency over intensity, always.",
+  ],
+  vitamind: [
+    "Vitamin D3 at 2000 IU/day is a solid, safe dose for most adults. 🌞 It's fat-soluble, so take it with a meal that has some fat for best absorption.\n\nVitamin D influences immune function, bone density, mood, and even cardiovascular health. Deficiency is surprisingly common — especially if you live in a northern climate or spend most time indoors.\n\nYour doctor should check your serum 25-OH-D levels annually. Optimal range is generally 40–60 ng/mL. If you're still low on 2000 IU, they may bump you to 4000 IU temporarily.",
+  ],
+  diet: [
+    "For your health goals — managing blood sugar, blood pressure, and cholesterol — the Mediterranean diet has the strongest evidence base. 🥗\n\nFocus on: plenty of vegetables and legumes, whole grains over refined carbs, olive oil as your main fat, fish 2–3x/week, and limiting red meat and processed foods.\n\nFor gut health specifically, high-fiber foods (psyllium husk, oats, flaxseed, beans) feed your microbiome and also help with both blood sugar and cholesterol. It's a win-win-win.",
+  ],
+  stress: [
+    "Stress directly impacts almost every health marker you're tracking — it raises blood pressure, spikes blood sugar, elevates CRP, and disrupts sleep. 🧠\n\nEvidence-backed approaches: daily mindfulness or meditation (even 10 minutes), regular exercise, quality sleep, and social connection. Journaling also has surprisingly strong research behind it for stress reduction.\n\nIf stress feels chronic and unmanageable, it's genuinely worth mentioning to your doctor — it's a health issue just like any other.",
+  ],
+  appointment: [
+    "Great things to bring up with Dr. Chen at your next visit:\n\n📋 Your recent blood work — ask about the elevated Neutrophils and CRP, and whether a follow-up is needed\n💊 How you're tolerating your medications — any side effects?\n🩺 Blood pressure and blood sugar trends at home\n📊 Your Vitamin D levels — has she tested your 25-OH-D recently?\n\nCome with your questions written down — appointments move fast and it's easy to forget things in the moment!",
+  ],
+  default: [
+    "That's a great health question! While I'm a demo assistant and can't give you personalized medical advice, I'd say the most important step is to bring this up with Dr. Chen at your next appointment. She knows your full health history and can give you the most accurate guidance. Is there anything specific about your medications or recent results I can help explain in the meantime?",
+    "Good question! I'm Youbot, your Vithyou health assistant. I can discuss your medications, blood work, general wellness, sleep, exercise, diet, and what questions to ask your doctor. What would you like to dig into?",
+    "I want to make sure I give you helpful information! Could you tell me a bit more about what you're wondering? For example — is this about one of your medications, your recent blood work, or a general health topic like sleep, exercise, or diet?",
+  ],
+};
+
+const getYoubotResponse = (messages, context) => {
+  const lastUserMsg = [...messages].reverse().find(m => m.role === "user" && !m.hidden);
+  const q = (lastUserMsg?.content || "").toLowerCase();
+  const isFirst = messages.filter(m => m.role === "user" && !m.hidden).length <= 1;
+
+  // Pick response pool based on keywords
+  let pool;
+  if (context === "bloodwork" && isFirst) {
+    pool = youbotResponses.bloodwork;
+  } else if (/\b(hi|hello|hey|howdy|greetings|sup|what can you)\b/.test(q) && isFirst) {
+    pool = youbotResponses.greetings;
+  } else if (/blood.?work|blood.?panel|wbc|cbc|neutrophil|lymphocyte|crp|lab.?result|lab.?test|marker/.test(q)) {
+    pool = youbotResponses.bloodwork;
+  } else if (/\ball\s+med|my\s+med|what.*med|medication.*for|list.*med/.test(q)) {
+    pool = youbotResponses.medications;
+  } else if (/metformin|diabetes|blood.?sugar|glucose|hba1c|insulin/.test(q)) {
+    pool = youbotResponses.metformin;
+  } else if (/lisinopril|ace.?inhibit|blood.?pressure|hypertension|bp/.test(q)) {
+    pool = youbotResponses.lisinopril;
+  } else if (/atorvastatin|statin|cholesterol|ldl|lipid|lipitor/.test(q)) {
+    pool = youbotResponses.cholesterol;
+  } else if (/lower.*pressure|reduce.*pressure|pressure.*natural|sodium|salt/.test(q)) {
+    pool = youbotResponses.bloodpressure;
+  } else if (/sleep|insomnia|tired|fatigue|rest|bedtime/.test(q)) {
+    pool = youbotResponses.sleep;
+  } else if (/exercise|workout|cardio|walking|fitness|zone.?2|strength|gym/.test(q)) {
+    pool = youbotResponses.exercise;
+  } else if (/vitamin.?d|d3|cholecalciferol|sunshine|bone/.test(q)) {
+    pool = youbotResponses.vitamind;
+  } else if (/diet|eat|food|nutrition|fiber|psyllium|mediterranean|gut/.test(q)) {
+    pool = youbotResponses.diet;
+  } else if (/stress|anxiety|mental|mindful|meditat|cortisol|worry/.test(q)) {
+    pool = youbotResponses.stress;
+  } else if (/doctor|appointment|ask.*dr|chen|visit|bring up|question/.test(q)) {
+    pool = youbotResponses.appointment;
+  } else {
+    pool = youbotResponses.default;
+  }
+
+  // Pick semi-randomly but cycle through pool entries
+  const idx = Math.floor(Math.random() * pool.length);
+  return pool[idx];
+};
+
+const callAI = (messages, context) => {
+  return new Promise((resolve) => {
+    // Realistic thinking delay: 600ms–1400ms
+    const delay = 600 + Math.random() * 800;
+    setTimeout(() => {
+      resolve(getYoubotResponse(messages, context));
+    }, delay);
+  });
+};
+
+// ══════════════════════════════════════════════════════════
+// SCREENS
+// ══════════════════════════════════════════════════════════
+
+// ── Home ──────────────────────────────────────────────────
+function HomeScreen({ navigate }) {
+  return (
+    <div>
+      <div style={{ padding: "20px 20px 10px" }}>
+        <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 3 }}>Good morning 👋</div>
+        <div style={{ fontSize: 26, fontWeight: 800, color: t.text, letterSpacing: "-0.5px" }}>Alex Rivera</div>
+      </div>
+
+      <div style={{ display: "flex", gap: 10, padding: "8px 20px", overflowX: "auto", scrollbarWidth: "none" }}>
+        {[
+          { label: "Heart Rate", value: "72 bpm", e: "❤️", c: "#EF4444", bg: "#FFF5F5" },
+          { label: "Steps", value: "4,231", e: "🚶", c: t.green, bg: t.greenSoft },
+          { label: "Sleep", value: "7h 12m", e: "🌙", c: t.purple, bg: t.purpleSoft },
+        ].map(s => (
+          <div key={s.label} style={C({ marginBottom: 0, minWidth: 108, flex: "0 0 auto", padding: "12px 14px", background: s.bg, border: `1px solid ${s.c}20` })}>
+            <div style={{ fontSize: 18, marginBottom: 5 }}>{s.e}</div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: s.c }}>{s.value}</div>
+            <div style={{ fontSize: 11, color: t.textMuted, marginTop: 1 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={SL}>Quick Access</div>
+      <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        {[
+          { label: "Health Records", icon: "health", c: t.accent, bg: t.accentSoft, s: "records" },
+          { label: "Pharmacy", icon: "pill", c: t.purple, bg: t.purpleSoft, s: "pharmacy" },
+          { label: "Appointments", icon: "calendar", c: t.green, bg: t.greenSoft, s: "appointments" },
+          { label: "Youbot AI", icon: "sparkle", c: t.teal, bg: t.tealSoft, s: "ai" },
+        ].map(item => (
+          <div key={item.label} onClick={() => navigate(item.s)}
+            style={C({ marginBottom: 0, cursor: "pointer", background: item.bg, border: `1px solid ${item.c}25`, padding: 18 })}>
+            <div style={{ width: 38, height: 38, borderRadius: 11, background: "#fff", boxShadow: sh, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+              <Icon name={item.icon} size={18} color={item.c} />
+            </div>
+            <div style={{ fontWeight: 700, fontSize: 13, color: t.text }}>{item.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={SL}>Upcoming Appointments</div>
+      <div style={{ padding: "0 20px" }}>
+        {appointments.map(apt => {
+          const doc = doctors.find(d => d.id === apt.doctorId);
+          return (
+            <div key={apt.id} onClick={() => navigate("appt-detail", apt)}
+              style={C({ cursor: "pointer", display: "flex", alignItems: "center", gap: 12 })}>
+              <div style={{ width: 44, height: 44, borderRadius: 13, background: doc.color + "18", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: doc.color, flexShrink: 0 }}>{doc.avatar}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>{doc.name}</div>
+                <div style={{ fontSize: 12, color: t.textMuted }}>{apt.type} · {apt.date}</div>
+              </div>
+              <span style={P(t.greenSoft, t.green)}>✓ confirmed</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Youbot Hub ────────────────────────────────────────────
+function YoubotHubScreen({ navigate }) {
+  return (
+    <div>
+      {/* Banner */}
+      <div style={{ margin: "16px 20px 0", borderRadius: 20, background: "linear-gradient(135deg, #0891B2, #2563EB)", padding: "22px 20px 20px", boxShadow: sh2 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+          <div style={{ width: 46, height: 46, borderRadius: 15, background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon name="sparkle" size={22} color="#fff" />
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 20, color: "#fff" }}>Youbot</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)" }}>Your AI Health Assistant</div>
+          </div>
+        </div>
+        <button onClick={() => navigate("youbot-chat", { context: "general", isNew: true })}
+          style={B("#fff", t.accent, { width: "100%", justifyContent: "center", borderRadius: 12, padding: "12px 16px", fontSize: 14, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" })}>
+          <Icon name="plus" size={16} color={t.accent} />
+          Start New Chat
+        </button>
+      </div>
+
+      {/* Suggested */}
+      <div style={SL}>Ask Youbot</div>
+      <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 8 }}>
+        {[
+          { q: "Explain my latest blood work results", e: "🩸" },
+          { q: "What are my medications for?", e: "💊" },
+          { q: "Tips to lower blood pressure naturally", e: "❤️" },
+          { q: "What should I ask my doctor?", e: "🏥" },
+        ].map(item => (
+          <div key={item.q} onClick={() => navigate("youbot-chat", { context: "general", isNew: true, prefill: item.q })}
+            style={C({ cursor: "pointer", display: "flex", alignItems: "center", gap: 12, marginBottom: 0, padding: "12px 14px" })}>
+            <span style={{ fontSize: 20 }}>{item.e}</span>
+            <span style={{ fontSize: 13, fontWeight: 500, color: t.textMid, flex: 1 }}>{item.q}</span>
+            <Icon name="chevronRight" size={15} color={t.textDim} />
+          </div>
+        ))}
+      </div>
+
+      {/* Previous chats */}
+      <div style={SL}>Recent Chats</div>
+      <div style={{ padding: "0 20px" }}>
+        {prevChats.map(chat => (
+          <div key={chat.id} onClick={() => navigate("youbot-chat", { context: chat.context, chatId: chat.id, title: chat.title })}
+            style={C({ cursor: "pointer", display: "flex", gap: 12, alignItems: "flex-start" })}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{chat.icon}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: t.text, marginBottom: 3 }}>{chat.title}</div>
+              <div style={{ fontSize: 12, color: t.textMuted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{chat.preview}</div>
+            </div>
+            <div style={{ fontSize: 11, color: t.textDim, flexShrink: 0, marginTop: 2 }}>{chat.date}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Youbot Chat ───────────────────────────────────────────
+function YoubotChatScreen({ data }) {
+  const context = data?.context || "general";
+  const [msgs, setMsgs] = useState([]);
+  const [input, setInput] = useState(data?.prefill || "");
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef(null);
+
+  const bloodworkInsight = `Hi Alex! 👋 I've reviewed your Complete Blood Panel from February 28th — here's what stands out.
+
+A few markers are slightly outside the normal range. Your **WBC (10.8 K/uL)** is at the high end of normal, and your **Neutrophils (78.2%)** are elevated while **Lymphocytes (16.4%)** are a bit low. This pattern often appears with mild infections, stress, or inflammation. Your **CRP at 2.1 mg/L** also points to some low-level inflammation in the body.
+
+The good news: your RBC, Hemoglobin, Hematocrit, and Platelets are all perfectly normal. 🎉 These flagged values are worth mentioning to Dr. Chen at your next visit — she may want to recheck in a few weeks. Feel free to ask me anything about these results!`;
+
+  useEffect(() => {
+    if (context === "bloodwork") {
+      setLoading(true);
+      const init = [{ role: "user", content: "Please analyze my recent blood work.", hidden: true }];
+      setMsgs(init);
+      const timer = setTimeout(() => {
+        setMsgs([...init, { role: "assistant", content: bloodworkInsight }]);
+        setLoading(false);
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, loading]);
+
+  const send = async (txt) => {
+    const text = (txt || input).trim();
+    if (!text || loading) return;
+    setInput("");
+    const newMsgs = [...msgs, { role: "user", content: text }];
+    setMsgs(newMsgs);
+    setLoading(true);
+    const reply = await callAI(newMsgs, context);
+    setMsgs([...newMsgs, { role: "assistant", content: reply }]);
+    setLoading(false);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 118px)" }}>
+      {/* Sub-header */}
+      <div style={{ padding: "10px 20px", background: t.bgAlt, borderBottom: `1px solid ${t.cardBorder}`, display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ width: 34, height: 34, borderRadius: 10, background: "linear-gradient(135deg, #0891B2, #2563EB)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Icon name="sparkle" size={16} color="#fff" />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>{data?.title || "Youbot"}</div>
+          <div style={{ fontSize: 11, color: t.green, display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: t.green, display: "inline-block" }} />
+            Active
+          </div>
+        </div>
+        {context === "bloodwork" && <span style={P(t.accentSoft, t.accent)}>📋 Blood Work</span>}
+      </div>
+
+      {/* Messages */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px", background: t.bg, scrollbarWidth: "none" }}>
+        {msgs.length === 0 && !loading && (
+          <div style={{ textAlign: "center", marginTop: 48 }}>
+            <div style={{ fontSize: 44, marginBottom: 12 }}>🤖</div>
+            <div style={{ fontWeight: 700, fontSize: 16, color: t.text, marginBottom: 6 }}>Youbot is ready</div>
+            <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 20 }}>Ask me anything about your health</div>
+            {["What are my medications for?", "Explain my blood work", "How do I lower cholesterol?"].map(q => (
+              <div key={q} onClick={() => send(q)}
+                style={C({ cursor: "pointer", marginBottom: 8, padding: "11px 14px", display: "flex", alignItems: "center", gap: 10 })}>
+                <span style={{ fontSize: 13, color: t.accent, fontWeight: 500, flex: 1 }}>{q}</span>
+                <Icon name="chevronRight" size={14} color={t.textDim} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {msgs.filter(m => !m.hidden).map((m, i) => (
+          <div key={i} style={{ marginBottom: 14, display: "flex", flexDirection: m.role === "user" ? "row-reverse" : "row", gap: 8, alignItems: "flex-end" }}>
+            {m.role === "assistant" && (
+              <div style={{ width: 28, height: 28, borderRadius: 9, background: "linear-gradient(135deg, #0891B2, #2563EB)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Icon name="sparkle" size={13} color="#fff" />
+              </div>
+            )}
+            <div style={{ maxWidth: "78%", padding: "11px 14px", borderRadius: m.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px", background: m.role === "user" ? "linear-gradient(135deg, #2563EB, #0891B2)" : t.card, border: m.role === "assistant" ? `1px solid ${t.cardBorder}` : "none", boxShadow: sh, fontSize: 14, lineHeight: 1.65, color: m.role === "user" ? "#fff" : t.text }}>
+              {m.content}
+            </div>
+          </div>
+        ))}
+
+        {loading && (
+          <div style={{ display: "flex", gap: 8, alignItems: "flex-end", marginBottom: 14 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 9, background: "linear-gradient(135deg, #0891B2, #2563EB)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Icon name="sparkle" size={13} color="#fff" />
+            </div>
+            <div style={C({ padding: "12px 16px", marginBottom: 0, display: "flex", gap: 5, alignItems: "center" })}>
+              {[0, 1, 2].map(i => <div key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: t.accent, animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />)}
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input */}
+      <div style={{ padding: "10px 16px 14px", borderTop: `1px solid ${t.cardBorder}`, display: "flex", gap: 8, background: t.bgAlt }}>
+        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()}
+          placeholder="Ask Youbot anything…"
+          style={{ flex: 1, background: t.bg, border: `1px solid ${t.cardBorder}`, borderRadius: 12, padding: "11px 14px", color: t.text, fontSize: 14, outline: "none", fontFamily: "'DM Sans', sans-serif" }} />
+        <button onClick={() => send()} disabled={loading || !input.trim()}
+          style={B("linear-gradient(135deg, #2563EB, #0891B2)", "#fff", { borderRadius: 12, padding: "11px 14px", opacity: loading || !input.trim() ? 0.4 : 1 })}>
+          <Icon name="send" size={15} color="#fff" />
+        </button>
+      </div>
+      <style>{`@keyframes pulse{0%,100%{transform:scale(0.7);opacity:0.4}50%{transform:scale(1);opacity:1}}`}</style>
+    </div>
+  );
+}
+
+// ── Health Records ─────────────────────────────────────────
+function RecordsScreen({ navigate }) {
+  return (
+    <div>
+      <div style={SL}>Health Records</div>
+      <div style={{ padding: "0 20px" }}>
+        {healthRecords.map(r => {
+          const col = r.status === "flagged" ? t.red : r.status === "reviewed" ? t.yellow : t.green;
+          const bg = r.status === "flagged" ? t.redSoft : r.status === "reviewed" ? t.yellowSoft : t.greenSoft;
+          return (
+            <div key={r.id} onClick={() => navigate("blood-report", r)} style={C({ cursor: "pointer" })}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 13, background: bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Icon name="health" size={20} color={col} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: t.text, marginBottom: 2 }}>{r.title}</div>
+                  <div style={{ fontSize: 12, color: t.textMuted }}>{r.lab} · {r.date}</div>
+                </div>
+                {r.alerts > 0 && <span style={P(t.redSoft, t.red)}>{r.alerts} alert{r.alerts > 1 ? "s" : ""}</span>}
+                <Icon name="chevronRight" size={16} color={t.textDim} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Blood Report ───────────────────────────────────────────
+function BloodReportScreen({ navigate, data }) {
+  const rep = bloodWork[data?.id] || bloodWork[1];
+  const [upl, setUpl] = useState(false);
+  const sc = s => s === "high" ? t.red : s === "low" ? t.yellow : t.green;
+  const sb = s => s === "high" ? t.redSoft : s === "low" ? t.yellowSoft : t.greenSoft;
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px 4px" }}>
+        <div style={{ fontSize: 12, color: t.textMuted }}>{rep.lab}</div>
+        <button onClick={() => { setUpl(true); setTimeout(() => setUpl(false), 2000); }}
+          style={B(t.accentSoft, t.accent, { padding: "7px 12px", fontSize: 12, borderRadius: 9 })}>
+          <Icon name="upload" size={12} color={t.accent} />
+          {upl ? "Uploading…" : "Upload Report"}
+        </button>
+      </div>
+
+      <div style={{ padding: "2px 20px 0" }}>
+        <div style={{ fontSize: 20, fontWeight: 800, color: t.text, marginBottom: 3 }}>{rep.title}</div>
+        <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 14 }}>{rep.date} · Ordered by {rep.orderedBy}</div>
+
+        <div onClick={() => navigate("youbot-chat", { context: "bloodwork", title: "Blood Work Analysis" })}
+          style={C({ background: "linear-gradient(135deg, #EFF4FF, #ECFEFF)", border: `1px solid ${t.accentMid}`, cursor: "pointer", display: "flex", alignItems: "center", gap: 12, marginBottom: 18 })}>
+          <div style={{ width: 44, height: 44, borderRadius: 13, background: "linear-gradient(135deg, #2563EB, #0891B2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Icon name="sparkle" size={20} color="#fff" />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>AI Insight with Youbot</div>
+            <div style={{ fontSize: 12, color: t.textMuted }}>Get a plain-language explanation of your results</div>
+          </div>
+          <Icon name="chevronRight" size={16} color={t.accent} />
+        </div>
+
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: t.textMuted, marginBottom: 10 }}>Lab Markers</div>
+        {rep.markers.map(m => (
+          <div key={m.name} style={C({ padding: "12px 14px", marginBottom: 8 })}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>{m.name}</div>
+                <div style={{ fontSize: 11, color: t.textMuted }}>Ref: {m.lo}–{m.hi} {m.unit}</div>
+              </div>
+              <div style={{ fontSize: 17, fontWeight: 800, color: sc(m.status) }}>{m.value}</div>
+              <div style={{ fontSize: 11, color: t.textMuted, minWidth: 30 }}>{m.unit}</div>
+              <span style={P(sb(m.status), sc(m.status))}>{m.status === "normal" ? "OK" : m.status.toUpperCase()}</span>
+            </div>
+            <div style={{ marginTop: 8, height: 4, borderRadius: 4, background: t.cardBorder, overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${Math.min(((m.value - m.lo) / (m.hi - m.lo)) * 100, 100)}%`, background: sc(m.status), borderRadius: 4 }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Pharmacy ───────────────────────────────────────────────
+function PharmacyScreen({ navigate }) {
+  const [rem, setRem] = useState(meds.map(m => ({ id: m.id, on: true })));
+  const toggle = id => setRem(r => r.map(x => x.id === id ? { ...x, on: !x.on } : x));
+
+  return (
+    <div>
+      <div style={SL}>My Medications</div>
+      <div style={{ padding: "0 20px" }}>
+        {meds.map(med => {
+          const r = rem.find(x => x.id === med.id);
+          const low = med.stock < 10;
+          return (
+            <div key={med.id} style={C({ borderLeft: `3px solid ${med.color}` })}>
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 13, background: med.color + "15", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Icon name="pill" size={20} color={med.color} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: t.text }}>{med.name} <span style={{ fontWeight: 500, fontSize: 13, color: t.textMuted }}>{med.dose}</span></div>
+                  <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>{med.freq} · Next: {med.next}</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  {low && <span style={P(t.redSoft, t.red)}>Low stock</span>}
+                  <div style={{ fontSize: 12, color: t.textMuted, marginTop: 4 }}>{med.stock} left</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 7 }}>
+                <button onClick={() => toggle(med.id)}
+                  style={B(r?.on ? t.greenSoft : t.bg, r?.on ? t.green : t.textMuted, { flex: 1, justifyContent: "center", fontSize: 12, border: `1px solid ${r?.on ? t.green + "40" : t.cardBorder}`, padding: "8px 10px" })}>
+                  <Icon name="bell" size={12} color={r?.on ? t.green : t.textMuted} />
+                  {r?.on ? "On" : "Off"}
+                </button>
+                <button style={B(med.color + "12", med.color, { flex: 1, justifyContent: "center", fontSize: 12, border: `1px solid ${med.color}30`, padding: "8px 10px" })}>
+                  <Icon name="cart" size={12} color={med.color} />
+                  Order
+                </button>
+                <button onClick={() => navigate("med-facts", { medId: med.id, medName: med.name })}
+                  style={B(t.bg, t.textMid, { flex: 1, justifyContent: "center", fontSize: 12, border: `1px solid ${t.cardBorder}`, padding: "8px 10px" })}>
+                  <Icon name="book" size={12} color={t.textMid} />
+                  Facts
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Med Facts ──────────────────────────────────────────────
+function MedFactsScreen({ data }) {
+  const f = facts[data?.medId] || facts[1];
+  const [tab, setTab] = useState("overview");
+
+  const TabBtn = ({ id, label }) => (
+    <button onClick={() => setTab(id)}
+      style={B(tab === id ? t.accent : t.bg, tab === id ? "#fff" : t.textMuted, { flex: 1, justifyContent: "center", fontSize: 12, padding: "9px 10px", border: `1px solid ${tab === id ? t.accent : t.cardBorder}`, borderRadius: 10 })}>
+      {label}
+    </button>
+  );
+
+  return (
+    <div style={{ padding: "0 20px 24px" }}>
+      {/* Header */}
+      <div style={C({ background: "linear-gradient(135deg, #F5F3FF, #EFF4FF)", borderColor: t.purple + "33", marginTop: 8 })}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <Icon name="book" size={15} color={t.purple} />
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: t.purple }}>Drug Facts</span>
+        </div>
+        <div style={{ fontSize: 20, fontWeight: 800, color: t.text, marginBottom: 2 }}>{f.name}</div>
+        <div style={{ fontSize: 12, color: t.textMuted }}>{f.cls}</div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+        <TabBtn id="overview" label="📋 Overview" />
+        <TabBtn id="videos" label="▶ Videos" />
+        <TabBtn id="articles" label="📰 Articles" />
+      </div>
+
+      {/* Overview */}
+      {tab === "overview" && (
+        <>
+          {[
+            { label: "How It Works", content: f.how, emoji: "🔬", col: t.accent },
+            { label: "Medical Uses", content: f.uses, emoji: "💊", col: t.green },
+            { label: "Side Effects", content: f.side, emoji: "⚠️", col: t.yellow },
+            { label: "Drug Interactions", content: f.inter, emoji: "🔗", col: t.red },
+            { label: "Tips", content: f.tips, emoji: "💡", col: t.purple },
+          ].map(sec => (
+            <div key={sec.label} style={C()}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                <span style={{ fontSize: 16 }}>{sec.emoji}</span>
+                <div style={{ fontWeight: 700, fontSize: 13, color: sec.col }}>{sec.label}</div>
+              </div>
+              {Array.isArray(sec.content) ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                  {sec.content.map((item, i) => (
+                    <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: sec.col, marginTop: 6, flexShrink: 0 }} />
+                      <div style={{ fontSize: 13, lineHeight: 1.55, color: t.textMid }}>{item}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, lineHeight: 1.7, color: t.textMid }}>{sec.content}</div>
+              )}
+            </div>
+          ))}
+          <div style={C({ background: t.yellowSoft, borderColor: t.yellow + "44" })}>
+            <div style={{ fontSize: 12, color: t.yellow, lineHeight: 1.6 }}>⚠️ For educational purposes only. Always follow your doctor's or pharmacist's specific guidance.</div>
+          </div>
+        </>
+      )}
+
+      {/* Videos */}
+      {tab === "videos" && (
+        <>
+          <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 14, lineHeight: 1.5 }}>Curated YouTube videos explaining {f.name.split(" ")[0]} in plain language.</div>
+          {f.videos.map((v, i) => (
+            <a key={i} href={v.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+              <div style={C({ cursor: "pointer", marginBottom: 10 })}>
+                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                  <div style={{ width: 84, height: 56, borderRadius: 10, background: "linear-gradient(135deg, #FF0000, #CC0000)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, position: "relative", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.15)" }} />
+                    <div style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1, paddingLeft: 2 }}>
+                      <Icon name="play" size={12} color="#CC0000" />
+                    </div>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: t.text, lineHeight: 1.4, marginBottom: 5 }}>{v.title}</div>
+                    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+                      <span style={P("#FF000015", "#CC0000")}>YouTube</span>
+                      <span style={{ fontSize: 11, color: t.textMuted }}>{v.channel}</span>
+                      <span style={{ fontSize: 11, color: t.textDim }}>· {v.dur}</span>
+                    </div>
+                  </div>
+                  <Icon name="chevronRight" size={15} color={t.textDim} />
+                </div>
+              </div>
+            </a>
+          ))}
+          <div style={C({ background: t.accentSoft, borderColor: t.accent + "30", padding: "11px 14px" })}>
+            <div style={{ fontSize: 12, color: t.accent }}>🔍 These links open YouTube searches for the most current, relevant videos on this medication.</div>
+          </div>
+        </>
+      )}
+
+      {/* Articles */}
+      {tab === "articles" && (
+        <>
+          <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 14, lineHeight: 1.5 }}>Trusted health articles from leading medical organizations.</div>
+          {f.articles.map((a, i) => (
+            <a key={i} href={a.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+              <div style={C({ cursor: "pointer", marginBottom: 10 })}>
+                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Icon name="link" size={18} color={t.accent} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: t.text, marginBottom: 5 }}>{a.title}</div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      <span style={P(t.accentSoft, t.accent)}>{a.source}</span>
+                      <span style={P(t.greenSoft, t.green)}>{a.tag}</span>
+                    </div>
+                  </div>
+                  <Icon name="chevronRight" size={15} color={t.textDim} />
+                </div>
+              </div>
+            </a>
+          ))}
+          <div style={C({ background: t.greenSoft, borderColor: t.green + "30", padding: "11px 14px" })}>
+            <div style={{ fontSize: 12, color: t.green }}>✅ All articles link to trusted sources: Mayo Clinic, NIH, Harvard Health, and Cleveland Clinic.</div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Appointments ───────────────────────────────────────────
+function AppointmentsScreen({ navigate }) {
+  const [calling, setCalling] = useState(null);
+  const call = doc => { setCalling(doc.id); setTimeout(() => setCalling(null), 3000); };
+
+  return (
+    <div>
+      {appointments.length > 0 && (
+        <>
+          <div style={SL}>My Appointments</div>
+          <div style={{ padding: "0 20px" }}>
+            {appointments.map(apt => {
+              const doc = doctors.find(d => d.id === apt.doctorId);
+              return (
+                <div key={apt.id} onClick={() => navigate("appt-detail", apt)}
+                  style={C({ cursor: "pointer", display: "flex", alignItems: "center", gap: 12, borderLeft: `3px solid ${doc.color}` })}>
+                  <div style={{ width: 44, height: 44, borderRadius: 13, background: doc.color + "18", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, color: doc.color, flexShrink: 0 }}>{doc.avatar}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>{doc.name}</div>
+                    <div style={{ fontSize: 12, color: t.textMuted }}>{apt.type} · {apt.date} {apt.time}</div>
+                  </div>
+                  <span style={P(t.greenSoft, t.green)}>✓ confirmed</span>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      <div style={SL}>Care Team</div>
+      <div style={{ padding: "0 20px" }}>
+        {doctors.map(doc => (
+          <div key={doc.id} style={C()}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+              <div style={{ width: 50, height: 50, borderRadius: 15, background: doc.color + "18", border: `2px solid ${doc.color}30`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: doc.color, flexShrink: 0 }}>{doc.avatar}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 800, fontSize: 15, color: t.text }}>{doc.name}</div>
+                <div style={{ fontSize: 12, color: t.textMuted }}>{doc.specialty} · {doc.hospital}</div>
+                <div style={{ fontSize: 11, color: doc.color, marginTop: 2, fontWeight: 600 }}>Next available: {doc.nextAvail}</div>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => call(doc)}
+                style={B(calling === doc.id ? t.greenSoft : t.bg, calling === doc.id ? t.green : t.textMid, { flex: 1, justifyContent: "center", border: `1px solid ${calling === doc.id ? t.green + "40" : t.cardBorder}` })}>
+                <Icon name={calling === doc.id ? "check" : "phone"} size={14} color={calling === doc.id ? t.green : t.textMid} />
+                {calling === doc.id ? "Calling…" : "Call Office"}
+              </button>
+              <button onClick={() => navigate("schedule", { doctor: doc })}
+                style={B(doc.color, "#fff", { flex: 1, justifyContent: "center" })}>
+                <Icon name="calendar" size={14} color="#fff" />
+                Schedule
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Appt Detail ────────────────────────────────────────────
+function ApptDetailScreen({ data, navigate }) {
+  const apt = data || appointments[0];
+  const doc = doctors.find(d => d.id === apt.doctorId) || doctors[0];
+
+  return (
+    <div style={{ padding: "0 20px 24px" }}>
+      <div style={C({ background: doc.color + "0C", borderColor: doc.color + "30", marginTop: 8 })}>
+        <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+          <div style={{ width: 56, height: 56, borderRadius: 18, background: doc.color + "20", border: `2px solid ${doc.color}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 800, color: doc.color }}>{doc.avatar}</div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 19, color: t.text }}>{doc.name}</div>
+            <div style={{ fontSize: 13, color: t.textMuted }}>{doc.specialty}</div>
+            <div style={{ fontSize: 12, color: t.textMuted }}>{doc.hospital}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={C()}>
+        <div style={{ fontWeight: 700, fontSize: 14, color: t.text, marginBottom: 10 }}>Appointment Details</div>
+        {[["Type", apt.type], ["Date", apt.date], ["Scheduled Time", apt.time], ["Room", apt.room]].map(([label, val]) => (
+          <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: `1px solid ${t.cardBorder}` }}>
+            <span style={{ fontSize: 13, color: t.textMuted }}>{label}</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: t.text }}>{val}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={C({ background: "linear-gradient(135deg, #EFF4FF, #ECFDF5)", borderColor: t.accent + "33" })}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+          <Icon name="clock" size={16} color={t.accent} />
+          <div style={{ fontWeight: 700, fontSize: 14, color: t.accent }}>Estimated Time Window</div>
+        </div>
+        {[
+          { label: "Check-in Opens", time: apt.windowStart, done: true },
+          { label: "Estimated Call Time", time: apt.time, done: false },
+          { label: "Window Closes", time: apt.windowEnd, done: false },
+        ].map((step, i, arr) => (
+          <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={{ width: 20, height: 20, borderRadius: "50%", background: step.done ? t.green : t.accentSoft, border: `2px solid ${step.done ? t.green : t.accent}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                {step.done && <Icon name="check" size={10} color="#fff" />}
+              </div>
+              {i < arr.length - 1 && <div style={{ width: 2, height: 26, background: t.cardBorder }} />}
+            </div>
+            <div style={{ paddingBottom: 12 }}>
+              <div style={{ fontWeight: 600, fontSize: 13, color: t.text }}>{step.label}</div>
+              <div style={{ fontSize: 12, color: t.accent, fontWeight: 700 }}>{step.time}</div>
+            </div>
+          </div>
+        ))}
+        <span style={P(t.yellowSoft, t.yellow)}>⏱ Estimated wait: {apt.waitEstimate} after check-in</span>
+      </div>
+
+      <div style={{ display: "flex", gap: 10 }}>
+        <button style={B(t.redSoft, t.red, { flex: 1, justifyContent: "center" })}>Cancel Appointment</button>
+        <button style={B(doc.color, "#fff", { flex: 1, justifyContent: "center" })}>
+          <Icon name="phone" size={14} color="#fff" /> Call Office
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Schedule ───────────────────────────────────────────────
+function ScheduleScreen({ data }) {
+  const doc = data?.doctor || doctors[0];
+  const [selDate, setSelDate] = useState(null);
+  const [selTime, setSelTime] = useState(null);
+  const [confirmed, setConfirmed] = useState(false);
+  const dates = ["Mar 14", "Mar 16", "Mar 19", "Mar 21", "Mar 22"];
+  const slots = ["9:00 AM", "10:30 AM", "11:00 AM", "2:00 PM", "3:30 PM", "4:00 PM"];
+
+  if (confirmed) return (
+    <div style={{ padding: "48px 20px", textAlign: "center" }}>
+      <div style={{ width: 72, height: 72, borderRadius: 24, background: t.greenSoft, border: `2px solid ${t.green}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+        <Icon name="check" size={30} color={t.green} />
+      </div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: t.text, marginBottom: 6 }}>Appointment Confirmed!</div>
+      <div style={{ fontSize: 14, color: t.textMuted, marginBottom: 20 }}>{doc.name} · {selDate} at {selTime}</div>
+      <div style={C()}>
+        <div style={{ fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>A confirmation has been sent. You'll receive a reminder 24 hours before your appointment.</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ padding: "0 20px 24px" }}>
+      <div style={C({ display: "flex", gap: 10, alignItems: "center", marginTop: 8, borderColor: doc.color + "33" })}>
+        <div style={{ width: 44, height: 44, borderRadius: 13, background: doc.color + "18", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800, color: doc.color }}>{doc.avatar}</div>
+        <div>
+          <div style={{ fontWeight: 700, color: t.text }}>{doc.name}</div>
+          <div style={{ fontSize: 12, color: t.textMuted }}>{doc.specialty}</div>
+        </div>
+      </div>
+
+      <div style={{ fontWeight: 700, fontSize: 14, color: t.text, marginBottom: 10, marginTop: 14 }}>Select Date</div>
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none", paddingBottom: 4 }}>
+        {dates.map(d => (
+          <button key={d} onClick={() => setSelDate(d)}
+            style={B(selDate === d ? doc.color : t.bg, selDate === d ? "#fff" : t.textMid, { border: `1px solid ${selDate === d ? doc.color : t.cardBorder}`, flexShrink: 0, padding: "10px 14px", borderRadius: 10 })}>{d}</button>
+        ))}
+      </div>
+
+      <div style={{ fontWeight: 700, fontSize: 14, color: t.text, marginBottom: 10, marginTop: 16 }}>Select Time</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+        {slots.map(s => (
+          <button key={s} onClick={() => setSelTime(s)}
+            style={B(selTime === s ? doc.color : t.bg, selTime === s ? "#fff" : t.textMid, { border: `1px solid ${selTime === s ? doc.color : t.cardBorder}`, justifyContent: "center", padding: "10px 6px", fontSize: 12, borderRadius: 10 })}>{s}</button>
+        ))}
+      </div>
+
+      {selDate && selTime && (
+        <button onClick={() => setConfirmed(true)}
+          style={B(doc.color, "#fff", { width: "100%", justifyContent: "center", marginTop: 20, padding: 14, fontSize: 15, borderRadius: 14 })}>
+          <Icon name="check" size={16} color="#fff" /> Confirm Appointment
+        </button>
+      )}
+    </div>
+  );
+}
+
+
+// ── Explore ────────────────────────────────────────────────
+const exploreData = [
+  {
+    id: "nutrition", label: "Nutrition & Gut Health", icon: "leaf", color: "#059669", bg: "#ECFDF5", emoji: "🥗",
+    blurb: "What you eat shapes how you feel every day.",
+    fact: "💡 Psyllium husk can lower LDL cholesterol by up to 7% when taken consistently with meals.",
+    videos: [
+      { title: "Psyllium Husk: The Fiber That Changes Everything", channel: "Thomas DeLauer", dur: "11:24", url: "https://www.youtube.com/results?search_query=psyllium+husk+benefits+health", views: "2.1M views" },
+      { title: "Gut Microbiome — How to Fix Your Gut Health", channel: "Andrew Huberman", dur: "1:42:00", url: "https://www.youtube.com/results?search_query=gut+microbiome+health+huberman", views: "4.8M views" },
+      { title: "Anti-Inflammatory Foods You Should Eat Daily", channel: "Doctor Mike", dur: "14:08", url: "https://www.youtube.com/results?search_query=anti+inflammatory+foods+daily", views: "3.2M views" },
+      { title: "Fiber: Why Most People Are Deficient", channel: "Nutrition Made Simple", dur: "9:45", url: "https://www.youtube.com/results?search_query=fiber+deficiency+health+effects", views: "890K views" },
+    ],
+    articles: [
+      { title: "Psyllium Husk: Benefits, Uses & Side Effects", source: "Healthline", tag: "Nutrition", url: "https://www.healthline.com/nutrition/psyllium-husk-benefits" },
+      { title: "How Your Diet Affects Your Gut Microbiome", source: "Harvard Health", tag: "Research", url: "https://www.health.harvard.edu/blog/gut-microbiota-diet" },
+      { title: "The Best Foods for Gut Health", source: "Cleveland Clinic", tag: "Guide", url: "https://health.clevelandclinic.org/best-foods-for-gut-health" },
+    ],
+  },
+  {
+    id: "mental", label: "Mental Health & Mindfulness", icon: "brain", color: "#7C3AED", bg: "#F5F3FF", emoji: "🧠",
+    blurb: "Your mind deserves the same care as your body.",
+    fact: "💡 Just 10 minutes of daily mindfulness can measurably reduce cortisol levels within 8 weeks.",
+    videos: [
+      { title: "The Science of Mental Health — Full Guide", channel: "Andrew Huberman", dur: "2:03:00", url: "https://www.youtube.com/results?search_query=mental+health+science+huberman+lab", views: "6.1M views" },
+      { title: "How to Reduce Anxiety & Stress Immediately", channel: "Therapy in a Nutshell", dur: "12:33", url: "https://www.youtube.com/results?search_query=reduce+anxiety+stress+immediately+techniques", views: "5.4M views" },
+      { title: "The Importance of Sleep for Mental Health", channel: "Matthew Walker", dur: "19:20", url: "https://www.youtube.com/results?search_query=sleep+mental+health+matthew+walker", views: "7.9M views" },
+      { title: "5-Minute Mindfulness Meditation for Beginners", channel: "Goodful", dur: "5:00", url: "https://www.youtube.com/results?search_query=5+minute+mindfulness+meditation+beginners", views: "12M views" },
+    ],
+    articles: [
+      { title: "Why Mental Health Matters as Much as Physical Health", source: "WHO", tag: "Official", url: "https://www.who.int/news-room/fact-sheets/detail/mental-health-strengthening-our-response" },
+      { title: "10 Daily Habits That Improve Mental Health", source: "Psychology Today", tag: "Lifestyle", url: "https://www.psychologytoday.com/us/blog/click-here-happiness" },
+      { title: "Stress Management Techniques That Work", source: "Mayo Clinic", tag: "Clinical", url: "https://www.mayoclinic.org/healthy-lifestyle/stress-management/basics/stress-basics/hlv-20049495" },
+    ],
+  },
+  {
+    id: "fitness", label: "Fitness & Movement", icon: "dumbbell", color: "#2563EB", bg: "#EFF4FF", emoji: "💪",
+    blurb: "Movement is medicine — find what works for you.",
+    fact: "💡 Just 150 minutes of moderate exercise per week reduces heart disease risk by up to 35%.",
+    videos: [
+      { title: "The Optimal Workout Plan — Science Explained", channel: "Jeff Nippard", dur: "22:11", url: "https://www.youtube.com/results?search_query=optimal+workout+plan+science+jeff+nippard", views: "8.3M views" },
+      { title: "30-Min Full Body Workout — No Equipment", channel: "MadFit", dur: "30:00", url: "https://www.youtube.com/results?search_query=30+minute+full+body+workout+no+equipment", views: "22M views" },
+      { title: "Why Walking is the Most Underrated Exercise", channel: "Doctor Mike", dur: "10:44", url: "https://www.youtube.com/results?search_query=walking+benefits+health+underrated+exercise", views: "4.1M views" },
+      { title: "Zone 2 Cardio — The Secret to Longevity", channel: "Peter Attia", dur: "18:55", url: "https://www.youtube.com/results?search_query=zone+2+cardio+longevity+peter+attia", views: "3.7M views" },
+    ],
+    articles: [
+      { title: "How Much Exercise Do You Actually Need?", source: "Harvard Health", tag: "Research", url: "https://www.health.harvard.edu/exercise-and-fitness/how-much-exercise-do-you-really-need" },
+      { title: "The Benefits of Strength Training at Any Age", source: "Mayo Clinic", tag: "Guide", url: "https://www.mayoclinic.org/healthy-lifestyle/fitness/in-depth/strength-training/art-20046670" },
+      { title: "Beginner Guide to Starting a Workout Routine", source: "Healthline", tag: "Beginner", url: "https://www.healthline.com/health/fitness/how-to-start-working-out" },
+    ],
+  },
+  {
+    id: "heart", label: "Heart & Cardiovascular Health", icon: "heart2", color: "#DC2626", bg: "#FFF0F0", emoji: "❤️",
+    blurb: "Your heart works 24/7 — give it the attention it deserves.",
+    fact: "💡 The heart beats about 100,000 times a day — over 2.5 billion beats in an average lifetime.",
+    videos: [
+      { title: "How to Lower Blood Pressure Naturally", channel: "Medcram", dur: "16:30", url: "https://www.youtube.com/results?search_query=lower+blood+pressure+naturally+fast", views: "9.2M views" },
+      { title: "Cholesterol Explained — What the Numbers Mean", channel: "Ninja Nerd", dur: "20:15", url: "https://www.youtube.com/results?search_query=cholesterol+explained+LDL+HDL+numbers", views: "3.8M views" },
+      { title: "Heart-Healthy Foods Cardiologists Actually Eat", channel: "Cleveland Clinic", dur: "8:42", url: "https://www.youtube.com/results?search_query=heart+healthy+foods+cardiologist+recommends", views: "2.5M views" },
+    ],
+    articles: [
+      { title: "Heart Disease Risk Factors You Can Control", source: "American Heart Association", tag: "Official", url: "https://www.heart.org/en/health-topics/heart-attack/understand-your-risks-to-prevent-a-heart-attack" },
+      { title: "The Best Diet for Heart Health", source: "Harvard Health", tag: "Nutrition", url: "https://www.health.harvard.edu/heart-health/heart-healthy-diet" },
+    ],
+  },
+  {
+    id: "sleep", label: "Sleep & Recovery", icon: "brain", color: "#0891B2", bg: "#ECFEFF", emoji: "🌙",
+    blurb: "Quality sleep is the foundation of everything else.",
+    fact: "💡 During deep sleep, your brain flushes out toxins via the glymphatic system — linked to Alzheimer prevention.",
+    videos: [
+      { title: "Why We Sleep — Matthew Walker Full Interview", channel: "Rich Roll", dur: "1:58:00", url: "https://www.youtube.com/results?search_query=why+we+sleep+matthew+walker+interview", views: "11M views" },
+      { title: "The Perfect Sleep Routine, Backed by Science", channel: "Andrew Huberman", dur: "14:20", url: "https://www.youtube.com/results?search_query=perfect+sleep+routine+huberman+science", views: "8.4M views" },
+      { title: "How to Fall Asleep Faster Tonight", channel: "Therapy in a Nutshell", dur: "9:10", url: "https://www.youtube.com/results?search_query=how+to+fall+asleep+faster+science", views: "6.7M views" },
+    ],
+    articles: [
+      { title: "How Much Sleep Do You Really Need?", source: "NIH", tag: "Official", url: "https://www.nhlbi.nih.gov/health/sleep/how-much-sleep" },
+      { title: "Sleep Hygiene — Tips for Better Sleep", source: "Cleveland Clinic", tag: "Guide", url: "https://health.clevelandclinic.org/sleep-hygiene" },
+      { title: "The Link Between Sleep and Heart Health", source: "Harvard Health", tag: "Research", url: "https://www.health.harvard.edu/heart-health/sleep-and-heart-health" },
+    ],
+  },
+];
+
+function VideoCard({ v, accentColor }) {
+  return (
+    <a href={v.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+      <div style={C({ cursor: "pointer", marginBottom: 10 })}>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ width: 88, height: 56, borderRadius: 10, background: "linear-gradient(135deg, #FF0000, #CC0000)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.16)" }} />
+            <div style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.93)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1, paddingLeft: 3 }}>
+              <Icon name="play" size={12} color="#CC0000" />
+            </div>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: t.text, lineHeight: 1.4, marginBottom: 4 }}>{v.title}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+              <span style={P("#FF000015", "#CC0000")}>YouTube</span>
+              <span style={{ fontSize: 11, color: t.textMuted }}>{v.channel}</span>
+            </div>
+            <div style={{ fontSize: 11, color: t.textDim, marginTop: 2 }}>{v.dur}{v.views ? " · " + v.views : ""}</div>
+          </div>
+          <Icon name="chevronRight" size={15} color={t.textDim} />
+        </div>
+      </div>
+    </a>
+  );
+}
+
+function ArticleCard({ a, accentColor, accentBg }) {
+  return (
+    <a href={a.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+      <div style={C({ cursor: "pointer", marginBottom: 10 })}>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: accentBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Icon name="link" size={18} color={accentColor} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: t.text, marginBottom: 5 }}>{a.title}</div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              <span style={P(accentBg, accentColor)}>{a.source}</span>
+              <span style={P(t.greenSoft, t.green)}>{a.tag}</span>
+            </div>
+          </div>
+          <Icon name="chevronRight" size={15} color={t.textDim} />
+        </div>
+      </div>
+    </a>
+  );
+}
+
+function ExploreScreen() {
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [contentTab, setContentTab] = useState("videos");
+  const current = exploreData.find(c => c.id === activeCategory);
+
+  if (activeCategory && current) {
+    return (
+      <div>
+        <div style={{ margin: "12px 20px 0", borderRadius: 18, background: "linear-gradient(135deg, " + current.color + ", " + current.color + "BB)", padding: "20px", boxShadow: sh2 }}>
+          <div style={{ fontSize: 32, marginBottom: 8 }}>{current.emoji}</div>
+          <div style={{ fontWeight: 800, fontSize: 20, color: "#fff", marginBottom: 4 }}>{current.label}</div>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.82)", lineHeight: 1.5 }}>{current.blurb}</div>
+        </div>
+        <div style={{ margin: "10px 20px 0", ...C({ background: current.bg, borderColor: current.color + "33", marginBottom: 0 }) }}>
+          <div style={{ fontSize: 13, color: current.color, lineHeight: 1.6, fontWeight: 500 }}>{current.fact}</div>
+        </div>
+        <div onClick={() => setActiveCategory(null)}
+          style={{ display: "flex", alignItems: "center", gap: 5, padding: "14px 20px 2px", cursor: "pointer", color: t.accent, fontWeight: 600, fontSize: 13 }}>
+          <Icon name="chevronLeft" size={15} color={t.accent} /> All Categories
+        </div>
+        <div style={{ display: "flex", gap: 8, padding: "10px 20px 12px" }}>
+          {["videos", "articles"].map(tb => (
+            <button key={tb} onClick={() => setContentTab(tb)}
+              style={B(contentTab === tb ? current.color : t.bg, contentTab === tb ? "#fff" : t.textMuted, { flex: 1, justifyContent: "center", fontSize: 13, padding: "10px", border: "1px solid " + (contentTab === tb ? current.color : t.cardBorder), borderRadius: 10 })}>
+              {tb === "videos" ? "▶ Videos" : "📰 Articles"}
+            </button>
+          ))}
+        </div>
+        <div style={{ padding: "0 20px 20px" }}>
+          {contentTab === "videos" && current.videos.map((v, i) => <VideoCard key={i} v={v} accentColor={current.color} />)}
+          {contentTab === "articles" && current.articles.map((a, i) => <ArticleCard key={i} a={a} accentColor={current.color} accentBg={current.bg} />)}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ padding: "16px 20px 8px" }}>
+        <div style={{ fontSize: 24, fontWeight: 800, color: t.text, letterSpacing: "-0.4px", marginBottom: 4 }}>Explore Health</div>
+        <div style={{ fontSize: 13, color: t.textMuted }}>Videos and articles curated for your wellbeing</div>
+      </div>
+
+      <div style={{ margin: "8px 20px 0", borderRadius: 18, background: "linear-gradient(135deg, #7C3AED, #2563EB)", padding: "20px", boxShadow: sh2, cursor: "pointer" }}
+        onClick={() => { setActiveCategory("mental"); setContentTab("videos"); }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "1.2px", textTransform: "uppercase", color: "rgba(255,255,255,0.65)", marginBottom: 8 }}>⭐ Featured This Week</div>
+        <div style={{ fontWeight: 800, fontSize: 18, color: "#fff", marginBottom: 6 }}>The Science of Mental Health</div>
+        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", marginBottom: 14, lineHeight: 1.5 }}>Sleep, movement, and mindfulness — how they all connect to your mental wellbeing.</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <span style={P("rgba(255,255,255,0.2)", "#fff")}>🧠 Mental Health</span>
+          <span style={P("rgba(255,255,255,0.2)", "#fff")}>4 Videos</span>
+          <span style={P("rgba(255,255,255,0.2)", "#fff")}>3 Articles</span>
+        </div>
+      </div>
+
+      <div style={SL}>Browse by Topic</div>
+      <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        {exploreData.map(cat => (
+          <div key={cat.id} onClick={() => { setActiveCategory(cat.id); setContentTab("videos"); }}
+            style={C({ marginBottom: 0, cursor: "pointer", background: cat.bg, border: "1px solid " + cat.color + "22", padding: 16 })}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>{cat.emoji}</div>
+            <div style={{ fontWeight: 700, fontSize: 13, color: t.text, marginBottom: 3 }}>{cat.label}</div>
+            <div style={{ fontSize: 11, color: t.textMuted }}>{cat.videos.length} videos · {cat.articles.length} articles</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={SL}>Trending Videos</div>
+      <div style={{ padding: "0 20px 20px" }}>
+        {[
+          { title: "Psyllium Husk: The Fiber That Changes Everything", channel: "Thomas DeLauer", dur: "11:24", url: "https://www.youtube.com/results?search_query=psyllium+husk+benefits+health", cat: "🥗 Nutrition" },
+          { title: "Why Walking is the Most Underrated Exercise", channel: "Doctor Mike", dur: "10:44", url: "https://www.youtube.com/results?search_query=walking+benefits+health+underrated+exercise", cat: "💪 Fitness" },
+          { title: "How to Fall Asleep Faster Tonight", channel: "Therapy in a Nutshell", dur: "9:10", url: "https://www.youtube.com/results?search_query=how+to+fall+asleep+faster+science", cat: "🌙 Sleep" },
+          { title: "How to Lower Blood Pressure Naturally", channel: "Medcram", dur: "16:30", url: "https://www.youtube.com/results?search_query=lower+blood+pressure+naturally+fast", cat: "❤️ Heart" },
+        ].map((v, i) => (
+          <a key={i} href={v.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+            <div style={C({ cursor: "pointer", marginBottom: 10 })}>
+              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <div style={{ width: 80, height: 52, borderRadius: 10, background: "linear-gradient(135deg, #FF0000, #CC0000)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.15)" }} />
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1, paddingLeft: 2 }}>
+                    <Icon name="play" size={12} color="#CC0000" />
+                  </div>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 13, color: t.text, lineHeight: 1.4, marginBottom: 4 }}>{v.title}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={P("#FF000015", "#CC0000")}>YouTube</span>
+                    <span style={{ fontSize: 11, color: t.textMuted }}>{v.channel} · {v.dur}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: t.textDim, marginTop: 2 }}>{v.cat}</div>
+                </div>
+                <Icon name="chevronRight" size={15} color={t.textDim} />
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════
+// ROOT APP
+// ══════════════════════════════════════════════════════════
+function App() {
+  const [tab, setTab] = useState("home");
+  const [screen, setScreen] = useState("home");
+  const [screenData, setScreenData] = useState(null);
+  const [history, setHistory] = useState([]);
+  const mains = ["home", "ai", "records", "pharmacy", "appointments", "explore"];
+
+  const navigate = (s, data = null) => {
+    setHistory(h => [...h, { screen, screenData }]);
+    setScreen(s); setScreenData(data);
+    if (mains.includes(s)) setTab(s);
+  };
+
+  const goBack = () => {
+    if (!history.length) return;
+    const prev = history[history.length - 1];
+    setHistory(h => h.slice(0, -1));
+    setScreen(prev.screen); setScreenData(prev.screenData);
+    if (mains.includes(prev.screen)) setTab(prev.screen);
+  };
+
+  const navTabs = [
+    { id: "home", label: "Home", icon: "home", screen: "home" },
+    { id: "ai", label: "Youbot", icon: "sparkle", screen: "ai" },
+    { id: "records", label: "Records", icon: "health", screen: "records" },
+    { id: "pharmacy", label: "Pharmacy", icon: "pill", screen: "pharmacy" },
+    { id: "appointments", label: "Doctors", icon: "calendar", screen: "appointments" },
+    { id: "explore", label: "Explore", icon: "compass", screen: "explore" },
+  ];
+
+  const titles = { explore: "Explore", "blood-report": "Lab Results", "med-facts": screenData?.medName || "Drug Facts", "appt-detail": "Appointment Details", schedule: "Schedule Visit", "youbot-chat": screenData?.title || "Youbot" };
+  const isSub = !mains.includes(screen);
+
+  return (
+    <div style={{ fontFamily: "'DM Sans', sans-serif", background: t.bg, minHeight: "100vh", color: t.text, display: "flex", flexDirection: "column", maxWidth: 430, margin: "0 auto" }}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet" />
+
+      {/* Header */}
+      <div style={{ padding: isSub ? "14px 20px 12px" : "10px 20px 10px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: isSub ? `1px solid ${t.cardBorder}` : "none", background: isSub ? t.bgAlt : "#1a1a1a", position: "sticky", top: 0, zIndex: 50, boxShadow: isSub ? "0 1px 0 rgba(0,0,0,0.04)" : "0 2px 12px rgba(0,0,0,0.25)" }}>
+        {isSub
+          ? <div onClick={goBack} style={{ display: "flex", alignItems: "center", gap: 4, cursor: "pointer", color: t.accent, fontWeight: 600, fontSize: 14 }}>
+              <Icon name="chevronLeft" size={18} color={t.accent} /> Back
+            </div>
+          : <img src="data:image/png;base64,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" style={{ height: 42, width: "auto", objectFit: "contain" }} alt="Vithyou" />
+        }
+        {isSub && <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", fontSize: 15, fontWeight: 700, color: t.text }}>{titles[screen]}</div>}
+        {screen === "home" && <div style={{ width: 36, height: 36, borderRadius: 11, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon name="user" size={16} color="#fff" /></div>}
+        {screen !== "home" && <div style={{ width: 36 }} />}
+      </div>
+
+      {/* Content */}
+      <div style={{ flex: 1, overflowY: "auto", paddingBottom: 80, scrollbarWidth: "none" }}>
+        {screen === "home" && <HomeScreen navigate={navigate} />}
+        {screen === "ai" && <YoubotHubScreen navigate={navigate} />}
+        {screen === "youbot-chat" && <YoubotChatScreen navigate={navigate} data={screenData} />}
+        {screen === "records" && <RecordsScreen navigate={navigate} />}
+        {screen === "blood-report" && <BloodReportScreen navigate={navigate} data={screenData} />}
+        {screen === "pharmacy" && <PharmacyScreen navigate={navigate} />}
+        {screen === "med-facts" && <MedFactsScreen navigate={navigate} data={screenData} />}
+        {screen === "appointments" && <AppointmentsScreen navigate={navigate} />}
+        {screen === "appt-detail" && <ApptDetailScreen navigate={navigate} data={screenData} />}
+        {screen === "schedule" && <ScheduleScreen navigate={navigate} data={screenData} />}
+        {screen === "explore" && <ExploreScreen navigate={navigate} />}
+      </div>
+
+      {/* Bottom Nav */}
+      <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: t.bgAlt, borderTop: `1px solid ${t.cardBorder}`, display: "flex", padding: "8px 0 14px", zIndex: 100, boxShadow: "0 -1px 8px rgba(0,0,0,0.05)" }}>
+        {navTabs.map(tb => {
+          const active = tab === tb.id;
+          return (
+            <div key={tb.id} onClick={() => navigate(tb.screen)}
+              style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: "pointer", padding: "4px 0" }}>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: active ? t.accentSoft : "transparent", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+                <Icon name={tb.icon} size={18} color={active ? t.accent : t.textDim} />
+              </div>
+              <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, color: active ? t.accent : t.textDim, letterSpacing: "0.2px" }}>{tb.label}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App));
+  </script>
+</body>
+</html>
