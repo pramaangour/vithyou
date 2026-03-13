@@ -398,7 +398,7 @@ function YoubotHubScreen({ navigate }) {
       <div style={{ margin: "16px 20px 0", borderRadius: 20, background: "linear-gradient(135deg, #0891B2, #2563EB)", padding: "22px 20px 20px", boxShadow: sh2 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
           <div style={{ width: 46, height: 46, borderRadius: 15, background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon name="sparkle" size={22} color="#fff" />
+            <span style={{ fontSize: 24 }}>🤖</span>
           </div>
           <div>
             <div style={{ fontWeight: 800, fontSize: 20, color: "#fff" }}>Youbot</div>
@@ -495,7 +495,7 @@ The good news: your RBC, Hemoglobin, Hematocrit, and Platelets are all perfectly
       {/* Sub-header */}
       <div style={{ padding: "10px 20px", background: t.bgAlt, borderBottom: `1px solid ${t.cardBorder}`, display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ width: 34, height: 34, borderRadius: 10, background: "linear-gradient(135deg, #0891B2, #2563EB)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Icon name="sparkle" size={16} color="#fff" />
+          <span style={{ fontSize: 18 }}>🤖</span>
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>{data?.title || "Youbot"}</div>
@@ -528,7 +528,7 @@ The good news: your RBC, Hemoglobin, Hematocrit, and Platelets are all perfectly
           <div key={i} style={{ marginBottom: 14, display: "flex", flexDirection: m.role === "user" ? "row-reverse" : "row", gap: 8, alignItems: "flex-end" }}>
             {m.role === "assistant" && (
               <div style={{ width: 28, height: 28, borderRadius: 9, background: "linear-gradient(135deg, #0891B2, #2563EB)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Icon name="sparkle" size={13} color="#fff" />
+                <span style={{ fontSize: 15 }}>🤖</span>
               </div>
             )}
             <div style={{ maxWidth: "78%", padding: "11px 14px", borderRadius: m.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px", background: m.role === "user" ? "linear-gradient(135deg, #2563EB, #0891B2)" : t.card, border: m.role === "assistant" ? `1px solid ${t.cardBorder}` : "none", boxShadow: sh, fontSize: 14, lineHeight: 1.65, color: m.role === "user" ? "#fff" : t.text }}>
@@ -540,7 +540,7 @@ The good news: your RBC, Hemoglobin, Hematocrit, and Platelets are all perfectly
         {loading && (
           <div style={{ display: "flex", gap: 8, alignItems: "flex-end", marginBottom: 14 }}>
             <div style={{ width: 28, height: 28, borderRadius: 9, background: "linear-gradient(135deg, #0891B2, #2563EB)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Icon name="sparkle" size={13} color="#fff" />
+              <span style={{ fontSize: 15 }}>🤖</span>
             </div>
             <div style={C({ padding: "12px 16px", marginBottom: 0, display: "flex", gap: 5, alignItems: "center" })}>
               {[0, 1, 2].map(i => <div key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: t.accent, animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />)}
@@ -620,7 +620,7 @@ function BloodReportScreen({ navigate, data }) {
         <div onClick={() => navigate("youbot-chat", { context: "bloodwork", title: "Blood Work Analysis" })}
           style={C({ background: "linear-gradient(135deg, #EFF4FF, #ECFEFF)", border: `1px solid ${t.accentMid}`, cursor: "pointer", display: "flex", alignItems: "center", gap: 12, marginBottom: 18 })}>
           <div style={{ width: 44, height: 44, borderRadius: 13, background: "linear-gradient(135deg, #2563EB, #0891B2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Icon name="sparkle" size={20} color="#fff" />
+            <span style={{ fontSize: 22 }}>🤖</span>
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>AI Insight with Youbot</div>
@@ -652,13 +652,43 @@ function BloodReportScreen({ navigate, data }) {
 }
 
 // ── Pharmacy ───────────────────────────────────────────────
+const medCatalog = [
+  { id: 101, name: "Paracetamol", dose: "500mg", category: "Pain Relief", price: 25, strip: "10 tablets", rx: false },
+  { id: 102, name: "Amoxicillin", dose: "250mg", category: "Antibiotic", price: 85, strip: "10 capsules", rx: true },
+  { id: 103, name: "Omeprazole", dose: "20mg", category: "Antacid", price: 65, strip: "10 capsules", rx: false },
+  { id: 104, name: "Cetirizine", dose: "10mg", category: "Allergy", price: 30, strip: "10 tablets", rx: false },
+  { id: 105, name: "Azithromycin", dose: "500mg", category: "Antibiotic", price: 120, strip: "3 tablets", rx: true },
+  { id: 106, name: "Pantoprazole", dose: "40mg", category: "Antacid", price: 90, strip: "10 tablets", rx: false },
+  { id: 107, name: "Ibuprofen", dose: "400mg", category: "Pain Relief", price: 35, strip: "10 tablets", rx: false },
+  { id: 108, name: "Multivitamin", dose: "Daily", category: "Supplement", price: 150, strip: "30 tablets", rx: false },
+  { id: 109, name: "Montelukast", dose: "10mg", category: "Allergy", price: 110, strip: "10 tablets", rx: true },
+  { id: 110, name: "Dolo 650", dose: "650mg", category: "Pain Relief", price: 30, strip: "15 tablets", rx: false },
+];
+
+const labTests = [
+  { id: 201, name: "Complete Blood Count (CBC)", desc: "Measures red & white blood cells, hemoglobin, platelets", price: 350, duration: "4-6 hrs", category: "Blood" },
+  { id: 202, name: "Lipid Profile", desc: "Total cholesterol, LDL, HDL, triglycerides", price: 450, duration: "6-8 hrs", category: "Blood" },
+  { id: 203, name: "Thyroid Panel (TSH, T3, T4)", desc: "Complete thyroid function assessment", price: 600, duration: "24 hrs", category: "Hormone" },
+  { id: 204, name: "HbA1c", desc: "3-month average blood sugar level", price: 400, duration: "4-6 hrs", category: "Diabetes" },
+  { id: 205, name: "Vitamin D (25-OH)", desc: "Serum vitamin D level measurement", price: 550, duration: "24 hrs", category: "Vitamin" },
+  { id: 206, name: "Liver Function Test (LFT)", desc: "ALT, AST, bilirubin, albumin levels", price: 500, duration: "6-8 hrs", category: "Organ" },
+  { id: 207, name: "Kidney Function Test (KFT)", desc: "Creatinine, BUN, uric acid levels", price: 480, duration: "6-8 hrs", category: "Organ" },
+  { id: 208, name: "Full Body Checkup", desc: "CBC, lipid, thyroid, liver, kidney, sugar — all in one", price: 1999, duration: "24-48 hrs", category: "Package" },
+];
+
 function PharmacyScreen({ navigate }) {
   const [rem, setRem] = useState(meds.map(m => ({ id: m.id, on: true })));
   const toggle = id => setRem(r => r.map(x => x.id === id ? { ...x, on: !x.on } : x));
 
   return (
     <div>
-      <div style={SL}>My Medications</div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px 0" }}>
+        <div style={SL}>My Medications</div>
+        <button onClick={() => navigate("med-order")} style={B(t.accent, "#fff", { padding: "8px 14px", borderRadius: 10, fontSize: 12 })}>
+          <Icon name="cart" size={13} color="#fff" />
+          Order Medicines
+        </button>
+      </div>
       <div style={{ padding: "0 20px" }}>
         {meds.map(med => {
           const r = rem.find(x => x.id === med.id);
@@ -684,7 +714,8 @@ function PharmacyScreen({ navigate }) {
                   <Icon name="bell" size={12} color={r?.on ? t.green : t.textMuted} />
                   {r?.on ? "On" : "Off"}
                 </button>
-                <button style={B(med.color + "12", med.color, { flex: 1, justifyContent: "center", fontSize: 12, border: `1px solid ${med.color}30`, padding: "8px 10px" })}>
+                <button onClick={() => navigate("med-checkout", { items: [{ name: med.name, dose: med.dose, price: med.name === "Metformin" ? 45 : med.name === "Lisinopril" ? 65 : med.name === "Atorvastatin" ? 85 : 120, qty: 1 }] })}
+                  style={B(med.color + "12", med.color, { flex: 1, justifyContent: "center", fontSize: 12, border: `1px solid ${med.color}30`, padding: "8px 10px" })}>
                   <Icon name="cart" size={12} color={med.color} />
                   Order
                 </button>
@@ -698,6 +729,274 @@ function PharmacyScreen({ navigate }) {
           );
         })}
       </div>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 20px 0" }}>
+        <div style={SL}>Lab Tests</div>
+        <button onClick={() => navigate("lab-tests")} style={B(t.green, "#fff", { padding: "8px 14px", borderRadius: 10, fontSize: 12 })}>
+          <Icon name="health" size={13} color="#fff" />
+          Browse Tests
+        </button>
+      </div>
+      <div style={{ padding: "0 20px" }}>
+        {labTests.slice(0, 3).map(test => (
+          <div key={test.id} onClick={() => navigate("lab-checkout", { test })} style={C({ cursor: "pointer", display: "flex", alignItems: "center", gap: 12 })}>
+            <div style={{ width: 44, height: 44, borderRadius: 13, background: t.greenSoft, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Icon name="health" size={20} color={t.green} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>{test.name}</div>
+              <div style={{ fontSize: 12, color: t.textMuted }}>{test.desc}</div>
+            </div>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ fontWeight: 800, fontSize: 15, color: t.green }}>₹{test.price}</div>
+              <div style={{ fontSize: 10, color: t.textDim }}>{test.duration}</div>
+            </div>
+          </div>
+        ))}
+        <button onClick={() => navigate("lab-tests")} style={B(t.greenSoft, t.green, { width: "100%", justifyContent: "center", padding: "11px", borderRadius: 12, fontSize: 13, border: `1px solid ${t.green}30`, marginBottom: 12 })}>
+          View All Lab Tests
+          <Icon name="chevronRight" size={14} color={t.green} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Med Order (Catalog) ───────────────────────────────────
+function MedOrderScreen({ navigate }) {
+  const [search, setSearch] = useState("");
+  const [cart, setCart] = useState([]);
+  const filtered = medCatalog.filter(m => m.name.toLowerCase().includes(search.toLowerCase()) || m.category.toLowerCase().includes(search.toLowerCase()));
+  const addToCart = med => {
+    setCart(c => { const ex = c.find(x => x.id === med.id); if (ex) return c.map(x => x.id === med.id ? { ...x, qty: x.qty + 1 } : x); return [...c, { ...med, qty: 1 }]; });
+  };
+  const removeFromCart = id => setCart(c => c.filter(x => x.id !== id));
+  const cartTotal = cart.reduce((s, x) => s + x.price * x.qty, 0);
+
+  return (
+    <div>
+      <div style={{ padding: "12px 20px" }}>
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search medicines..."
+          style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: `1px solid ${t.cardBorder}`, background: t.bg, fontSize: 14, fontFamily: "'DM Sans'", color: t.text, outline: "none" }} />
+      </div>
+      <div style={{ padding: "0 20px" }}>
+        {filtered.map(med => {
+          const inCart = cart.find(x => x.id === med.id);
+          return (
+            <div key={med.id} style={C({ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 })}>
+              <div style={{ width: 44, height: 44, borderRadius: 13, background: med.rx ? t.purpleSoft : t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Icon name="pill" size={18} color={med.rx ? t.purple : t.accent} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>{med.name} <span style={{ fontWeight: 500, fontSize: 12, color: t.textMuted }}>{med.dose}</span></div>
+                <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 3 }}>
+                  <span style={{ fontSize: 12, color: t.textMuted }}>{med.strip}</span>
+                  {med.rx && <span style={P(t.purpleSoft, t.purple)}>Rx</span>}
+                  <span style={P(t.accentSoft, t.accent)}>{med.category}</span>
+                </div>
+              </div>
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <div style={{ fontWeight: 800, fontSize: 16, color: t.accent }}>₹{med.price}</div>
+                {inCart
+                  ? <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                      <button onClick={() => removeFromCart(med.id)} style={{ width: 24, height: 24, borderRadius: 7, border: `1px solid ${t.red}`, background: t.redSoft, color: t.red, fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{inCart.qty}</span>
+                      <button onClick={() => addToCart(med)} style={{ width: 24, height: 24, borderRadius: 7, border: `1px solid ${t.green}`, background: t.greenSoft, color: t.green, fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                    </div>
+                  : <button onClick={() => addToCart(med)} style={B(t.accent, "#fff", { padding: "5px 12px", borderRadius: 8, fontSize: 11, marginTop: 4 })}>Add</button>
+                }
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {cart.length > 0 && (
+        <div style={{ position: "sticky", bottom: 80, margin: "0 20px", borderRadius: 16, background: "linear-gradient(135deg, #2563EB, #0891B2)", padding: "14px 18px", boxShadow: sh2, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
+          onClick={() => navigate("med-checkout", { items: cart.map(c => ({ name: c.name, dose: c.dose, price: c.price, qty: c.qty })) })}>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 16, color: "#fff" }}>{cart.length} item{cart.length > 1 ? "s" : ""} · ₹{cartTotal}</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)" }}>Tap to proceed to checkout</div>
+          </div>
+          <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 10, padding: "8px 14px", fontWeight: 700, fontSize: 13, color: "#fff" }}>Checkout →</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Med Checkout ──────────────────────────────────────────
+function MedCheckoutScreen({ data }) {
+  const items = data?.items || [{ name: "Paracetamol", dose: "500mg", price: 25, qty: 1 }];
+  const [mode, setMode] = useState("delivery");
+  const [ordered, setOrdered] = useState(false);
+  const subtotal = items.reduce((s, x) => s + x.price * x.qty, 0);
+  const deliveryFee = mode === "delivery" ? 40 : 0;
+  const platformFee = 10;
+  const total = subtotal + deliveryFee + platformFee;
+
+  if (ordered) return (
+    <div style={{ padding: "48px 20px", textAlign: "center" }}>
+      <div style={{ width: 72, height: 72, borderRadius: 24, background: t.greenSoft, border: `2px solid ${t.green}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 32 }}>✅</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: t.text, marginBottom: 6 }}>Order Placed!</div>
+      <div style={{ fontSize: 14, color: t.textMuted, marginBottom: 20 }}>{mode === "delivery" ? "Your medicines will be delivered in 30-45 mins" : "Your order is ready for pickup"}</div>
+      <div style={C({ textAlign: "left" })}>
+        <div style={{ fontWeight: 700, fontSize: 13, color: t.text, marginBottom: 8 }}>Order Summary</div>
+        {items.map((it, i) => <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "4px 0" }}><span>{it.name} {it.dose} × {it.qty}</span><span>₹{it.price * it.qty}</span></div>)}
+        <div style={{ borderTop: `1px solid ${t.cardBorder}`, marginTop: 8, paddingTop: 8, fontWeight: 700, fontSize: 14, display: "flex", justifyContent: "space-between", color: t.text }}><span>Total Paid</span><span>₹{total}</span></div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ padding: "0 20px 24px" }}>
+      <div style={{ ...SL, padding: "16px 0 10px" }}>Order Items</div>
+      {items.map((it, i) => (
+        <div key={i} style={C({ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 })}>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>{it.name} <span style={{ color: t.textMuted, fontWeight: 500, fontSize: 12 }}>{it.dose}</span></div>
+            <div style={{ fontSize: 12, color: t.textMuted }}>Qty: {it.qty}</div>
+          </div>
+          <div style={{ fontWeight: 800, fontSize: 16, color: t.accent }}>₹{it.price * it.qty}</div>
+        </div>
+      ))}
+
+      <div style={{ ...SL, padding: "16px 0 10px" }}>Select Mode</div>
+      <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+        {[{id: "delivery", label: "🚚 Delivery", sub: "30-45 mins"}, {id: "pickup", label: "🏪 Pickup", sub: "Ready in 15 mins"}].map(m => (
+          <div key={m.id} onClick={() => setMode(m.id)}
+            style={C({ flex: 1, cursor: "pointer", textAlign: "center", marginBottom: 0, border: `2px solid ${mode === m.id ? t.accent : t.cardBorder}`, background: mode === m.id ? t.accentSoft : t.card })}>
+            <div style={{ fontSize: 20, marginBottom: 4 }}>{m.label.split(" ")[0]}</div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: mode === m.id ? t.accent : t.text }}>{m.label.split(" ").slice(1).join(" ")}</div>
+            <div style={{ fontSize: 11, color: t.textMuted }}>{m.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={C()}>
+        <div style={{ fontWeight: 700, fontSize: 14, color: t.text, marginBottom: 10 }}>Price Breakdown</div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "6px 0" }}><span>Medicine Cost</span><span>₹{subtotal}</span></div>
+        {mode === "delivery" && <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "6px 0" }}><span>Delivery Charge</span><span>₹{deliveryFee}</span></div>}
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "6px 0" }}><span>Platform Fee</span><span>₹{platformFee}</span></div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 16, fontWeight: 800, color: t.text, borderTop: `1px solid ${t.cardBorder}`, paddingTop: 10, marginTop: 6 }}><span>Total</span><span style={{ color: t.accent }}>₹{total}</span></div>
+      </div>
+
+      <button onClick={() => setOrdered(true)} style={B("linear-gradient(135deg, #2563EB, #0891B2)", "#fff", { width: "100%", justifyContent: "center", padding: 15, fontSize: 16, borderRadius: 14, marginTop: 8, boxShadow: sh2 })}>
+        Pay ₹{total}
+      </button>
+    </div>
+  );
+}
+
+// ── Lab Tests Screen ──────────────────────────────────────
+function LabTestsScreen({ navigate }) {
+  const [search, setSearch] = useState("");
+  const filtered = labTests.filter(t2 => t2.name.toLowerCase().includes(search.toLowerCase()) || t2.category.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div>
+      <div style={{ padding: "12px 20px" }}>
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search lab tests..."
+          style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: `1px solid ${t.cardBorder}`, background: t.bg, fontSize: 14, fontFamily: "'DM Sans'", color: t.text, outline: "none" }} />
+      </div>
+      <div style={{ padding: "0 20px" }}>
+        {filtered.map(test => (
+          <div key={test.id} onClick={() => navigate("lab-checkout", { test })} style={C({ cursor: "pointer", marginBottom: 8 })}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: test.category === "Package" ? "linear-gradient(135deg, #059669, #0891B2)" : t.greenSoft, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Icon name="health" size={20} color={test.category === "Package" ? "#fff" : t.green} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: t.text, marginBottom: 3 }}>{test.name}</div>
+                <div style={{ fontSize: 12, color: t.textMuted, lineHeight: 1.4, marginBottom: 6 }}>{test.desc}</div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <span style={P(t.greenSoft, t.green)}>{test.category}</span>
+                  <span style={P(t.accentSoft, t.accent)}>⏱ {test.duration}</span>
+                </div>
+              </div>
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <div style={{ fontWeight: 800, fontSize: 18, color: t.green }}>₹{test.price}</div>
+                <div style={{ fontSize: 11, color: t.accent, fontWeight: 600, marginTop: 4 }}>Book →</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Lab Checkout Screen ───────────────────────────────────
+function LabCheckoutScreen({ data }) {
+  const test = data?.test || labTests[0];
+  const [mode, setMode] = useState("home");
+  const [booked, setBooked] = useState(false);
+  const platformFee = 10;
+  const professionalFee = mode === "home" ? 150 : 0;
+  const total = test.price + platformFee + professionalFee;
+
+  if (booked) return (
+    <div style={{ padding: "48px 20px", textAlign: "center" }}>
+      <div style={{ width: 72, height: 72, borderRadius: 24, background: t.greenSoft, border: `2px solid ${t.green}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 32 }}>🩺</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: t.text, marginBottom: 6 }}>Test Booked!</div>
+      <div style={{ fontSize: 14, color: t.textMuted, marginBottom: 20 }}>{mode === "home" ? "A phlebotomist will visit you at home" : "Visit the nearest Vithyou partner lab"}</div>
+      <div style={C({ textAlign: "left" })}>
+        <div style={{ fontWeight: 700, fontSize: 13, color: t.text, marginBottom: 8 }}>Booking Summary</div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "4px 0" }}><span>{test.name}</span><span>₹{test.price}</span></div>
+        {mode === "home" && <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "4px 0" }}><span>Professional Fee</span><span>₹{professionalFee}</span></div>}
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "4px 0" }}><span>Platform Fee</span><span>₹{platformFee}</span></div>
+        <div style={{ borderTop: `1px solid ${t.cardBorder}`, marginTop: 8, paddingTop: 8, fontWeight: 700, fontSize: 14, display: "flex", justifyContent: "space-between", color: t.text }}><span>Total Paid</span><span>₹{total}</span></div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ padding: "0 20px 24px" }}>
+      <div style={C({ marginTop: 8, background: "linear-gradient(135deg, #ECFDF5, #ECFEFF)", borderColor: t.green + "33" })}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: t.green, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon name="health" size={22} color="#fff" />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 800, fontSize: 16, color: t.text }}>{test.name}</div>
+            <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>{test.desc}</div>
+            <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+              <span style={P(t.greenSoft, t.green)}>{test.category}</span>
+              <span style={P(t.accentSoft, t.accent)}>Results: {test.duration}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ ...SL, padding: "16px 0 10px" }}>Select Test Mode</div>
+      <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+        {[{id: "home", emoji: "🏠", label: "At Home", sub: "Phlebotomist visits you"}, {id: "lab", emoji: "🏥", label: "In Person", sub: "Visit partner lab"}].map(m => (
+          <div key={m.id} onClick={() => setMode(m.id)}
+            style={C({ flex: 1, cursor: "pointer", textAlign: "center", marginBottom: 0, border: `2px solid ${mode === m.id ? t.green : t.cardBorder}`, background: mode === m.id ? t.greenSoft : t.card })}>
+            <div style={{ fontSize: 24, marginBottom: 4 }}>{m.emoji}</div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: mode === m.id ? t.green : t.text }}>{m.label}</div>
+            <div style={{ fontSize: 11, color: t.textMuted }}>{m.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={C()}>
+        <div style={{ fontWeight: 700, fontSize: 14, color: t.text, marginBottom: 10 }}>Price Breakdown</div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "6px 0" }}><span>Test Cost</span><span>₹{test.price}</span></div>
+        {mode === "home" && <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "6px 0" }}><span>Professional Fee (Home Visit)</span><span>₹{professionalFee}</span></div>}
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "6px 0" }}><span>Platform Fee</span><span>₹{platformFee}</span></div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 16, fontWeight: 800, color: t.text, borderTop: `1px solid ${t.cardBorder}`, paddingTop: 10, marginTop: 6 }}><span>Total</span><span style={{ color: t.green }}>₹{total}</span></div>
+      </div>
+
+      {mode === "home" && <div style={C({ background: t.accentSoft, borderColor: t.accent + "30", padding: "11px 14px" })}>
+        <div style={{ fontSize: 12, color: t.accent }}>🏠 A certified phlebotomist will visit your address. Professional fee of ₹150 covers the home visit by a qualified healthcare professional.</div>
+      </div>}
+      {mode === "lab" && <div style={C({ background: t.greenSoft, borderColor: t.green + "30", padding: "11px 14px" })}>
+        <div style={{ fontSize: 12, color: t.green }}>🏥 Walk in to any Vithyou partner lab. Show your booking ID at the counter.</div>
+      </div>}
+
+      <button onClick={() => setBooked(true)} style={B("linear-gradient(135deg, #059669, #0891B2)", "#fff", { width: "100%", justifyContent: "center", padding: 15, fontSize: 16, borderRadius: 14, marginTop: 4, boxShadow: sh2 })}>
+        Pay ₹{total}
+      </button>
     </div>
   );
 }
@@ -1017,6 +1316,80 @@ function ScheduleScreen({ data }) {
 
 
 // ── Explore ────────────────────────────────────────────────
+// ── Profile ───────────────────────────────────────
+function ProfileScreen({ navigate }) {
+  const [plan, setPlan] = useState("monthly");
+  const [subscribed, setSubscribed] = useState(false);
+  return (
+    <div>
+      <div style={{ padding: "28px 20px 16px", textAlign: "center" }}>
+        <div style={{ width: 88, height: 88, borderRadius: 28, background: "linear-gradient(135deg, #2563EB, #7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", fontSize: 34, color: "#fff", fontWeight: 800, boxShadow: sh2, border: "3px solid #fff" }}>AR</div>
+        <div style={{ fontSize: 24, fontWeight: 800, color: t.text, letterSpacing: "-0.3px" }}>Alex Rivera</div>
+        <div style={{ fontSize: 13, color: t.textMuted, marginTop: 3 }}>alex.rivera@email.com</div>
+        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 10 }}>
+          <span style={P(t.greenSoft, t.green)}>✓ Verified</span>
+          <span style={P(t.accentSoft, t.accent)}>Free Plan</span>
+        </div>
+      </div>
+      <div style={{ margin: "0 20px", borderRadius: 22, background: "linear-gradient(135deg, #7C3AED, #2563EB, #0891B2)", padding: "26px 22px", boxShadow: "0 8px 32px rgba(124,58,237,0.3)", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -30, right: -30, width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
+        <div style={{ position: "absolute", bottom: -40, left: -20, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
+        <div style={{ position: "absolute", top: 12, right: 16 }}><span style={{ fontSize: 28 }}>✨</span></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18, position: "relative" }}>
+          <span style={{ fontSize: 32 }}>👑</span>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 22, color: "#fff", letterSpacing: "-0.3px" }}>Vithyou Premium</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>Unlock your full health potential</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 6, marginBottom: 20, background: "rgba(0,0,0,0.2)", borderRadius: 14, padding: 4 }}>
+          <button onClick={() => setPlan("monthly")} style={{ flex: 1, padding: "11px", borderRadius: 11, border: "none", cursor: "pointer", fontFamily: "'DM Sans'", fontWeight: 700, fontSize: 14, background: plan === "monthly" ? "#fff" : "transparent", color: plan === "monthly" ? "#7C3AED" : "rgba(255,255,255,0.7)", transition: "all 0.25s" }}>₹199/month</button>
+          <button onClick={() => setPlan("yearly")} style={{ flex: 1, padding: "11px", borderRadius: 11, border: "none", cursor: "pointer", fontFamily: "'DM Sans'", fontWeight: 700, fontSize: 14, background: plan === "yearly" ? "#fff" : "transparent", color: plan === "yearly" ? "#7C3AED" : "rgba(255,255,255,0.7)", transition: "all 0.25s" }}>₹2,000/year</button>
+        </div>
+        {plan === "yearly" && <div style={{ textAlign: "center", marginTop: -14, marginBottom: 12 }}><span style={{ fontSize: 11, fontWeight: 700, background: "#059669", color: "#fff", padding: "3px 10px", borderRadius: 10 }}>🎉 Save 16% with annual plan</span></div>}
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 22 }}>
+          {[
+            { emoji: "🧠", title: "Advanced AI Insights", text: "Get deeper, personalized health analysis powered by AI" },
+            { emoji: "🩸", title: "Discounted Bloodwork", text: "One discounted bloodwork & consult with a physician of your choice" },
+            { emoji: "🏥", title: "Priority Queue", text: "Skip the line at any Vithyou select hospital" },
+          ].map((f, i) => (
+            <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 20 }}>{f.emoji}</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "#fff", marginBottom: 2 }}>{f.title}</div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>{f.text}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <button onClick={() => setSubscribed(!subscribed)} style={{ width: "100%", padding: "15px", borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "'DM Sans'", fontWeight: 800, fontSize: 16, background: subscribed ? "rgba(255,255,255,0.2)" : "#fff", color: subscribed ? "#fff" : "#7C3AED", boxShadow: subscribed ? "none" : "0 4px 20px rgba(0,0,0,0.2)", transition: "all 0.25s" }}>
+          {subscribed ? "✓ Subscribed to Premium" : `Upgrade for ${plan === "monthly" ? "₹199/mo" : "₹2,000/yr"}`}
+        </button>
+      </div>
+      <div style={SL}>Account</div>
+      <div style={{ padding: "0 20px" }}>
+        {[
+          { icon: "user", label: "Personal Information", sub: "Name, email, phone", col: t.accent },
+          { icon: "health", label: "Health Profile", sub: "Allergies, conditions, blood type", col: t.green },
+          { icon: "bell", label: "Notifications", sub: "Reminders, alerts, updates", col: t.purple },
+          { icon: "info", label: "Help & Support", sub: "FAQs, contact us", col: t.teal },
+        ].map((opt, i) => (
+          <div key={i} style={C({ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" })}>
+            <div style={{ width: 42, height: 42, borderRadius: 13, background: opt.col + "15", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Icon name={opt.icon} size={18} color={opt.col} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>{opt.label}</div>
+              <div style={{ fontSize: 12, color: t.textMuted }}>{opt.sub}</div>
+            </div>
+            <Icon name="chevronRight" size={16} color={t.textDim} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const exploreData = [
   {
     id: "nutrition", label: "Nutrition & Gut Health", icon: "leaf", color: "#059669", bg: "#ECFDF5", emoji: "🥗",
@@ -1212,6 +1585,97 @@ function ExploreScreen() {
         ))}
       </div>
 
+      <div style={SL}>Personalized Home Care 🏠</div>
+      <div style={{ padding: "0 20px 6px" }}>
+        {(() => {
+          const [expanded, setExpanded] = useState(false);
+          const [hours, setHours] = useState(1);
+          return (
+            <div style={C({ overflow: "hidden", border: `2px solid ${expanded ? t.accent : t.cardBorder}`, background: expanded ? "linear-gradient(135deg, #EFF4FF, #ECFEFF)" : t.card, transition: "all 0.25s" })}>
+              <div onClick={() => setExpanded(!expanded)} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, #2563EB, #0891B2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <span style={{ fontSize: 28 }}>🧑‍⚕️</span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: 16, color: t.text }}>At-Home Healthcare</div>
+                  <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>Doctor & nurse visit at your doorstep</div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div style={{ fontWeight: 800, fontSize: 18, color: t.accent }}>₹999</div>
+                  <div style={{ fontSize: 10, color: t.textDim }}>/ hour</div>
+                </div>
+                <Icon name={expanded ? "chevronLeft" : "chevronRight"} size={16} color={t.textDim} />
+              </div>
+              {expanded && (
+                <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${t.cardBorder}` }}>
+                  <div style={{ fontSize: 13, color: t.textMid, lineHeight: 1.7, marginBottom: 16 }}>Get professional and personalized healthcare at your doorstep. Have a <strong>Vithyou certified doctor and nurse</strong> visit you at your residence for consultations, check-ups, post-operative care, elderly care, or any health concern that needs personal attention.</div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+                    {["🩺 General Checkup", "👴 Elderly Care", "🩹 Post-Op Care", "💉 Injections & IV"].map(tag => <span key={tag} style={P(t.accentSoft, t.accent)}>{tag}</span>)}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>Hours</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                      <button onClick={e => { e.stopPropagation(); setHours(h => Math.max(1, h - 1)); }} style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${t.cardBorder}`, background: t.bg, color: t.text, fontSize: 18, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+                      <span style={{ fontSize: 22, fontWeight: 800, color: t.accent, minWidth: 30, textAlign: "center" }}>{hours}</span>
+                      <button onClick={e => { e.stopPropagation(); setHours(h => h + 1); }} style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${t.accent}`, background: t.accentSoft, color: t.accent, fontSize: 18, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                    </div>
+                  </div>
+                  <div style={C({ background: t.bg, marginBottom: 0 })}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "4px 0" }}><span>{hours} hour{hours > 1 ? "s" : ""} × ₹999</span><span>₹{hours * 999}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "4px 0" }}><span>Platform Fee</span><span>₹10</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: 16, color: t.text, borderTop: `1px solid ${t.cardBorder}`, paddingTop: 8, marginTop: 4 }}><span>Total</span><span style={{ color: t.accent }}>₹{hours * 999 + 10}</span></div>
+                  </div>
+                  <button style={B("linear-gradient(135deg, #2563EB, #0891B2)", "#fff", { width: "100%", justifyContent: "center", padding: 14, fontSize: 15, borderRadius: 14, marginTop: 12, boxShadow: sh2 })}>
+                    Book Home Visit • ₹{hours * 999 + 10}
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+      </div>
+
+      <div style={SL}>Premium Sessions 💎</div>
+      <div style={{ padding: "0 20px 6px" }}>
+        <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 12 }}>Book 1-on-1 sessions with verified professionals</div>
+        {[
+          { id: "psych1", type: "Psychiatrist", name: "Dr. Ananya Sharma", specialty: "Clinical Psychiatrist", avatar: "AS", color: "#7C3AED", rating: "4.9", sessions: "500+", price: "\u20b91,499", duration: "45 min", desc: "Specializes in anxiety, depression & stress management", tags: ["CBT", "Anxiety", "Depression"] },
+          { id: "psych2", type: "Psychologist", name: "Dr. Rohan Mehta", specialty: "Counseling Psychologist", avatar: "RM", color: "#2563EB", rating: "4.8", sessions: "350+", price: "\u20b91,199", duration: "50 min", desc: "Expert in cognitive behavioral therapy & mindfulness", tags: ["Mindfulness", "CBT", "Relationships"] },
+          { id: "yoga1", type: "Yoga", name: "Priya Kapoor", specialty: "Certified Yoga Instructor", avatar: "PK", color: "#059669", rating: "4.9", sessions: "1,200+", price: "\u20b9499", duration: "60 min", desc: "Therapeutic yoga for stress relief & flexibility", tags: ["Hatha", "Stress Relief", "Flexibility"] },
+        ].map(s => (
+          <div key={s.id} style={C({ marginBottom: 10, overflow: "hidden" })}>
+            <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+              <div style={{ width: 60, height: 60, borderRadius: 18, background: `linear-gradient(135deg, ${s.color}30, ${s.color}15)`, border: `2px solid ${s.color}30`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, flexDirection: "column" }}>
+                <span style={{ fontSize: 16, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.avatar}</span>
+                <span style={{ fontSize: 9, color: s.color, fontWeight: 600, marginTop: 2 }}>{s.type === "Yoga" ? "🧘" : "🧠"}</span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                  <span style={P(s.type === "Yoga" ? t.greenSoft : t.purpleSoft, s.type === "Yoga" ? t.green : t.purple)}>{s.type}</span>
+                  <span style={{ fontSize: 11, color: t.yellow, fontWeight: 600 }}>⭐ {s.rating}</span>
+                  <span style={{ fontSize: 10, color: t.textDim }}>{s.sessions} sessions</span>
+                </div>
+                <div style={{ fontWeight: 800, fontSize: 15, color: t.text, marginBottom: 2 }}>{s.name}</div>
+                <div style={{ fontSize: 12, color: t.textMuted, marginBottom: 6 }}>{s.specialty}</div>
+                <div style={{ fontSize: 12, color: t.textMid, lineHeight: 1.5, marginBottom: 8 }}>{s.desc}</div>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 12 }}>
+                  {s.tags.map(tag => <span key={tag} style={P(s.color + "12", s.color)}>{tag}</span>)}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div>
+                    <span style={{ fontSize: 20, fontWeight: 800, color: s.color }}>{s.price}</span>
+                    <span style={{ fontSize: 12, color: t.textMuted }}> / {s.duration}</span>
+                  </div>
+                  <button style={B(s.color, "#fff", { padding: "9px 20px", borderRadius: 11, fontSize: 13, boxShadow: `0 4px 12px ${s.color}30` })}>
+                    Book Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div style={SL}>Trending Videos</div>
       <div style={{ padding: "0 20px 20px" }}>
         {[
@@ -1280,7 +1744,7 @@ function App() {
     { id: "explore", label: "Explore", icon: "compass", screen: "explore" },
   ];
 
-  const titles = { explore: "Explore", "blood-report": "Lab Results", "med-facts": screenData?.medName || "Drug Facts", "appt-detail": "Appointment Details", schedule: "Schedule Visit", "youbot-chat": screenData?.title || "Youbot" };
+  const titles = { explore: "Explore", profile: "Profile", "blood-report": "Lab Results", "med-facts": screenData?.medName || "Drug Facts", "appt-detail": "Appointment Details", schedule: "Schedule Visit", "youbot-chat": screenData?.title || "Youbot", "med-order": "Order Medicines", "med-checkout": "Checkout", "lab-tests": "Lab Tests", "lab-checkout": "Book Lab Test" };
   const isSub = !mains.includes(screen);
 
   return (
@@ -1296,7 +1760,7 @@ function App() {
           : <img src="data:image/png;base64,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" style={{ height: 42, width: "auto", objectFit: "contain" }} alt="Vithyou" />
         }
         {isSub && <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", fontSize: 15, fontWeight: 700, color: t.text }}>{titles[screen]}</div>}
-        {screen === "home" && <div style={{ width: 36, height: 36, borderRadius: 11, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon name="user" size={16} color="#fff" /></div>}
+        {screen === "home" && <div onClick={() => navigate("profile")} style={{ width: 36, height: 36, borderRadius: 11, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Icon name="user" size={16} color="#fff" /></div>}
         {screen !== "home" && <div style={{ width: 36 }} />}
       </div>
 
@@ -1313,6 +1777,11 @@ function App() {
         {screen === "appt-detail" && <ApptDetailScreen navigate={navigate} data={screenData} />}
         {screen === "schedule" && <ScheduleScreen navigate={navigate} data={screenData} />}
         {screen === "explore" && <ExploreScreen navigate={navigate} />}
+        {screen === "profile" && <ProfileScreen navigate={navigate} />}
+        {screen === "med-order" && <MedOrderScreen navigate={navigate} />}
+        {screen === "med-checkout" && <MedCheckoutScreen data={screenData} />}
+        {screen === "lab-tests" && <LabTestsScreen navigate={navigate} />}
+        {screen === "lab-checkout" && <LabCheckoutScreen data={screenData} />}
       </div>
 
       {/* Bottom Nav */}
