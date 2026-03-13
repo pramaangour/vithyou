@@ -330,6 +330,16 @@ const callAI = (messages, context) => {
 
 // ── Home ──────────────────────────────────────────────────
 function HomeScreen({ navigate }) {
+  const [stats, setStats] = useState([
+    { label: "Steps", value: "4,231", e: "🚶", c: t.green, bg: t.greenSoft },
+    { label: "Sleep", value: "7h 12m", e: "🌙", c: t.purple, bg: t.purpleSoft },
+    { label: "Exercise", value: "35 min", e: "💪", c: t.accent, bg: t.accentSoft },
+  ]);
+  const [editing, setEditing] = useState(null);
+  const [editVal, setEditVal] = useState("");
+  const startEdit = (i) => { setEditing(i); setEditVal(stats[i].value); };
+  const saveEdit = () => { if (editing !== null) { setStats(s => s.map((x, i) => i === editing ? { ...x, value: editVal } : x)); setEditing(null); } };
+
   return (
     <div>
       <div style={{ padding: "20px 20px 10px" }}>
@@ -338,15 +348,15 @@ function HomeScreen({ navigate }) {
       </div>
 
       <div style={{ display: "flex", gap: 10, padding: "8px 20px", overflowX: "auto", scrollbarWidth: "none" }}>
-        {[
-          { label: "Heart Rate", value: "72 bpm", e: "❤️", c: "#EF4444", bg: "#FFF5F5" },
-          { label: "Steps", value: "4,231", e: "🚶", c: t.green, bg: t.greenSoft },
-          { label: "Sleep", value: "7h 12m", e: "🌙", c: t.purple, bg: t.purpleSoft },
-        ].map(s => (
-          <div key={s.label} style={C({ marginBottom: 0, minWidth: 108, flex: "0 0 auto", padding: "12px 14px", background: s.bg, border: `1px solid ${s.c}20` })}>
+        {stats.map((s, i) => (
+          <div key={s.label} onClick={() => startEdit(i)} style={C({ marginBottom: 0, minWidth: 108, flex: "0 0 auto", padding: "12px 14px", background: s.bg, border: `1px solid ${editing === i ? s.c : s.c + "20"}`, cursor: "pointer" })}>
             <div style={{ fontSize: 18, marginBottom: 5 }}>{s.e}</div>
-            <div style={{ fontSize: 17, fontWeight: 700, color: s.c }}>{s.value}</div>
-            <div style={{ fontSize: 11, color: t.textMuted, marginTop: 1 }}>{s.label}</div>
+            {editing === i
+              ? <input value={editVal} onChange={e => setEditVal(e.target.value)} onBlur={saveEdit} onKeyDown={e => e.key === "Enter" && saveEdit()} autoFocus
+                  style={{ width: "100%", fontSize: 15, fontWeight: 700, color: s.c, border: "none", background: "transparent", outline: "none", padding: 0, fontFamily: "'DM Sans'" }} />
+              : <div style={{ fontSize: 17, fontWeight: 700, color: s.c }}>{s.value}</div>
+            }
+            <div style={{ fontSize: 11, color: t.textMuted, marginTop: 1, display: "flex", alignItems: "center", gap: 3 }}>{s.label} {editing !== i && <span style={{ fontSize: 9, color: s.c }}>✏️</span>}</div>
           </div>
         ))}
       </div>
@@ -1646,6 +1656,53 @@ function ArticleCard({ a, accentColor, accentBg }) {
   );
 }
 
+function PersonalizedHomeCare() {
+  const [expanded, setExpanded] = useState(false);
+  const [hours, setHours] = useState(1);
+  return (
+    <div style={C({ overflow: "hidden", border: `2px solid ${expanded ? t.accent : t.cardBorder}`, background: expanded ? "linear-gradient(135deg, #EFF4FF, #ECFEFF)" : t.card, transition: "all 0.25s" })}>
+      <div onClick={() => setExpanded(!expanded)} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, #2563EB, #0891B2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <span style={{ fontSize: 28 }}>🧑‍⚕️</span>
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 800, fontSize: 16, color: t.text }}>At-Home Healthcare</div>
+          <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>Doctor & nurse visit at your doorstep</div>
+        </div>
+        <div style={{ textAlign: "right", flexShrink: 0 }}>
+          <div style={{ fontWeight: 800, fontSize: 18, color: t.accent }}>₹999</div>
+          <div style={{ fontSize: 10, color: t.textDim }}>/ hour</div>
+        </div>
+        <Icon name={expanded ? "chevronLeft" : "chevronRight"} size={16} color={t.textDim} />
+      </div>
+      {expanded && (
+        <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${t.cardBorder}` }}>
+          <div style={{ fontSize: 13, color: t.textMid, lineHeight: 1.7, marginBottom: 16 }}>Get professional and personalized healthcare at your doorstep. Have a <strong>Vithyou certified doctor and nurse</strong> visit you at your residence for consultations, check-ups, post-operative care, elderly care, or any health concern that needs personal attention.</div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+            {["🩺 General Checkup", "👴 Elderly Care", "🩹 Post-Op Care", "💉 Injections & IV"].map(tag => <span key={tag} style={P(t.accentSoft, t.accent)}>{tag}</span>)}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>Hours</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <button onClick={e => { e.stopPropagation(); setHours(h => Math.max(1, h - 1)); }} style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${t.cardBorder}`, background: t.bg, color: t.text, fontSize: 18, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+              <span style={{ fontSize: 22, fontWeight: 800, color: t.accent, minWidth: 30, textAlign: "center" }}>{hours}</span>
+              <button onClick={e => { e.stopPropagation(); setHours(h => h + 1); }} style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${t.accent}`, background: t.accentSoft, color: t.accent, fontSize: 18, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+            </div>
+          </div>
+          <div style={C({ background: t.bg, marginBottom: 0 })}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "4px 0" }}><span>{hours} hour{hours > 1 ? "s" : ""} × ₹999</span><span>₹{hours * 999}</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "4px 0" }}><span>Platform Fee</span><span>₹10</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: 16, color: t.text, borderTop: `1px solid ${t.cardBorder}`, paddingTop: 8, marginTop: 4 }}><span>Total</span><span style={{ color: t.accent }}>₹{hours * 999 + 10}</span></div>
+          </div>
+          <button style={B("linear-gradient(135deg, #2563EB, #0891B2)", "#fff", { width: "100%", justifyContent: "center", padding: 14, fontSize: 15, borderRadius: 14, marginTop: 12, boxShadow: sh2 })}>
+            Book Home Visit • ₹{hours * 999 + 10}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ExploreScreen() {
   const [activeCategory, setActiveCategory] = useState(null);
   const [contentTab, setContentTab] = useState("videos");
@@ -1715,52 +1772,7 @@ function ExploreScreen() {
 
       <div style={SL}>Personalized Home Care 🏠</div>
       <div style={{ padding: "0 20px 6px" }}>
-        {(() => {
-          const [expanded, setExpanded] = useState(false);
-          const [hours, setHours] = useState(1);
-          return (
-            <div style={C({ overflow: "hidden", border: `2px solid ${expanded ? t.accent : t.cardBorder}`, background: expanded ? "linear-gradient(135deg, #EFF4FF, #ECFEFF)" : t.card, transition: "all 0.25s" })}>
-              <div onClick={() => setExpanded(!expanded)} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, #2563EB, #0891B2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <span style={{ fontSize: 28 }}>🧑‍⚕️</span>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, fontSize: 16, color: t.text }}>At-Home Healthcare</div>
-                  <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>Doctor & nurse visit at your doorstep</div>
-                </div>
-                <div style={{ textAlign: "right", flexShrink: 0 }}>
-                  <div style={{ fontWeight: 800, fontSize: 18, color: t.accent }}>₹999</div>
-                  <div style={{ fontSize: 10, color: t.textDim }}>/ hour</div>
-                </div>
-                <Icon name={expanded ? "chevronLeft" : "chevronRight"} size={16} color={t.textDim} />
-              </div>
-              {expanded && (
-                <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${t.cardBorder}` }}>
-                  <div style={{ fontSize: 13, color: t.textMid, lineHeight: 1.7, marginBottom: 16 }}>Get professional and personalized healthcare at your doorstep. Have a <strong>Vithyou certified doctor and nurse</strong> visit you at your residence for consultations, check-ups, post-operative care, elderly care, or any health concern that needs personal attention.</div>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
-                    {["🩺 General Checkup", "👴 Elderly Care", "🩹 Post-Op Care", "💉 Injections & IV"].map(tag => <span key={tag} style={P(t.accentSoft, t.accent)}>{tag}</span>)}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, color: t.text }}>Hours</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                      <button onClick={e => { e.stopPropagation(); setHours(h => Math.max(1, h - 1)); }} style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${t.cardBorder}`, background: t.bg, color: t.text, fontSize: 18, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
-                      <span style={{ fontSize: 22, fontWeight: 800, color: t.accent, minWidth: 30, textAlign: "center" }}>{hours}</span>
-                      <button onClick={e => { e.stopPropagation(); setHours(h => h + 1); }} style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${t.accent}`, background: t.accentSoft, color: t.accent, fontSize: 18, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
-                    </div>
-                  </div>
-                  <div style={C({ background: t.bg, marginBottom: 0 })}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "4px 0" }}><span>{hours} hour{hours > 1 ? "s" : ""} × ₹999</span><span>₹{hours * 999}</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: t.textMid, padding: "4px 0" }}><span>Platform Fee</span><span>₹10</span></div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: 16, color: t.text, borderTop: `1px solid ${t.cardBorder}`, paddingTop: 8, marginTop: 4 }}><span>Total</span><span style={{ color: t.accent }}>₹{hours * 999 + 10}</span></div>
-                  </div>
-                  <button style={B("linear-gradient(135deg, #2563EB, #0891B2)", "#fff", { width: "100%", justifyContent: "center", padding: 14, fontSize: 15, borderRadius: 14, marginTop: 12, boxShadow: sh2 })}>
-                    Book Home Visit • ₹{hours * 999 + 10}
-                  </button>
-                </div>
-              )}
-            </div>
-          );
-        })()}
+        <PersonalizedHomeCare />
       </div>
 
       <div style={SL}>Premium Sessions 💎</div>
