@@ -330,15 +330,20 @@ const callAI = (messages, context) => {
 
 // ── Home ──────────────────────────────────────────────────
 function HomeScreen({ navigate }) {
-  const [stats, setStats] = useState([
-    { label: "Steps", value: "4,231", e: "🚶", c: t.green, bg: t.greenSoft },
-    { label: "Sleep", value: "7h 12m", e: "🌙", c: t.purple, bg: t.purpleSoft },
-    { label: "Exercise", value: "35 min", e: "💪", c: t.accent, bg: t.accentSoft },
-  ]);
-  const [editing, setEditing] = useState(null);
-  const [editVal, setEditVal] = useState("");
-  const startEdit = (i) => { setEditing(i); setEditVal(stats[i].value); };
-  const saveEdit = () => { if (editing !== null) { setStats(s => s.map((x, i) => i === editing ? { ...x, value: editVal } : x)); setEditing(null); } };
+  const facts = [
+    { text: "Did you know? A 10-minute walk after meals helps flatten your blood sugar curve by up to 22%. Want to try it?", q: "Tell me about walking after meals", linkLabel: "Ask me how" },
+    { text: "Psyllium husk is a simple fiber that can lower LDL cholesterol by 7% when taken consistently. Curious?", q: "How does psyllium husk lower cholesterol?", linkLabel: "Learn more" },
+    { text: "Your heart is amazing! It beats about 100,000 times a day, pumping around 2,000 gallons of blood.", q: null, linkLabel: null },
+    { text: "Hydration hack! If you feel suddenly tired, drink a glass of water—mild dehydration can trigger brain fog.", q: null, linkLabel: null },
+  ];
+  const [currentFact, setCurrentFact] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentFact(prev => (prev + 1) % facts.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div>
@@ -347,18 +352,39 @@ function HomeScreen({ navigate }) {
         <div style={{ fontSize: 26, fontWeight: 800, color: t.text, letterSpacing: "-0.5px" }}>Alex Rivera</div>
       </div>
 
-      <div style={{ display: "flex", gap: 10, padding: "8px 20px", overflowX: "auto", scrollbarWidth: "none" }}>
-        {stats.map((s, i) => (
-          <div key={s.label} onClick={() => startEdit(i)} style={C({ marginBottom: 0, minWidth: 108, flex: "0 0 auto", padding: "12px 14px", background: s.bg, border: `1px solid ${editing === i ? s.c : s.c + "20"}`, cursor: "pointer" })}>
-            <div style={{ fontSize: 18, marginBottom: 5 }}>{s.e}</div>
-            {editing === i
-              ? <input value={editVal} onChange={e => setEditVal(e.target.value)} onBlur={saveEdit} onKeyDown={e => e.key === "Enter" && saveEdit()} autoFocus
-                  style={{ width: "100%", fontSize: 15, fontWeight: 700, color: s.c, border: "none", background: "transparent", outline: "none", padding: 0, fontFamily: "'DM Sans'" }} />
-              : <div style={{ fontSize: 17, fontWeight: 700, color: s.c }}>{s.value}</div>
-            }
-            <div style={{ fontSize: 11, color: t.textMuted, marginTop: 1, display: "flex", alignItems: "center", gap: 3 }}>{s.label} {editing !== i && <span style={{ fontSize: 9, color: s.c }}>✏️</span>}</div>
+      <div style={{ margin: "10px 20px", padding: 20, borderRadius: 16, background: "linear-gradient(135deg, #2563EB, #0891B2)", color: "#fff", position: "relative", boxShadow: "0 4px 12px rgba(37,99,235,0.25)" }}>
+        <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+          <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>🤖</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 800, fontSize: 12, marginBottom: 6, letterSpacing: "1px", color: "rgba(255,255,255,0.8)", textTransform: "uppercase" }}>Youbot's Daily Insight</div>
+            
+            {/* The carousel container */}
+            <div style={{ position: "relative", minHeight: 75, display: "flex", alignItems: "center" }}>
+              {facts.map((f, i) => (
+                <div key={i} style={{ position: i === currentFact ? "relative" : "absolute", opacity: i === currentFact ? 1 : 0, transition: "opacity 0.5s ease-in-out", pointerEvents: i === currentFact ? "auto" : "none", width: "100%" }}>
+                  <div style={{ fontSize: 14, lineHeight: 1.5, fontStyle: "italic", fontWeight: 500 }}>"{f.text}"</div>
+                  
+                  {f.q && (
+                    <button 
+                      onClick={() => navigate("youbot-chat", { context: "general", isNew: true, prefill: f.q })}
+                      style={B("#fff", t.accent, { marginTop: 12, padding: "8px 14px", fontSize: 12, borderRadius: 20 })}
+                    >
+                      <Icon name="sparkle" size={14} color={t.accent} />
+                      {f.linkLabel}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            
           </div>
-        ))}
+        </div>
+        
+        <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 16 }}>
+          {facts.map((_, i) => (
+             <div key={i} onClick={() => setCurrentFact(i)} style={{ width: 6, height: 6, borderRadius: "50%", background: i === currentFact ? "#fff" : "rgba(255,255,255,0.3)", cursor: "pointer", transition: "all 0.3s ease" }} />
+          ))}
+        </div>
       </div>
 
       <div style={SL}>Quick Access</div>
