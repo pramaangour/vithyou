@@ -11,27 +11,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
+    html, body {
+      min-height: 100%;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
     body {
       background: #e6e1f5;
       font-family: 'Plus Jakarta Sans', sans-serif;
       display: flex;
       justify-content: center;
-      min-height: 100vh;
       color: #1a1530;
     }
     #root {
       width: 100%;
       max-width: 430px;
-      min-height: 100vh;
       position: relative;
-      overflow: hidden;
+      /* NO overflow:hidden — that breaks mobile scroll */
     }
     ::-webkit-scrollbar { display: none; }
     * { -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
     input, button, textarea { font-family: inherit; }
     a { color: inherit; text-decoration: none; }
- 
+
     /* The signature Vithyou aurora gradient — lilac → peach → pink → mint */
     .aurora-bg {
       position: absolute;
@@ -46,15 +48,15 @@
       z-index: 0;
       pointer-events: none;
     }
- 
+
     @keyframes pulse-dot { 0%,100%{transform:scale(0.8);opacity:0.5} 50%{transform:scale(1);opacity:1} }
     @keyframes slide-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .slide-up { animation: slide-up 0.35s ease-out; }
- 
+
     /* Fraunces display utility */
     .serif { font-family: 'Fraunces', serif; font-weight: 600; letter-spacing: -0.01em; }
     .serif-it { font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; }
- 
+
     @media (max-width: 430px) { #root { box-shadow: none; } }
   </style>
 </head>
@@ -62,7 +64,7 @@
   <div id="root"></div>
   <script type="text/babel" data-presets="react">
     const { useState, useRef, useEffect } = React;
- 
+
     // ═══════════════════════════════════════════════════════
     // DESIGN TOKENS — VithYou pastel system
     // ═══════════════════════════════════════════════════════
@@ -72,16 +74,16 @@
       inkSoft: "#4a4468",
       inkMuted: "#7d7699",
       inkDim: "#b0a9c4",
- 
+
       // Brand purple
       purple: "#6F52E0",
       purpleDeep: "#5a3fc7",
       purpleSoft: "#ede8fc",
       purpleTint: "#f5f1ff",
- 
+
       // Accent dark navy (for logo, SOS frame)
       navy: "#1a1a3a",
- 
+
       // Signal colors — kept pastel
       red: "#d14d5a",
       redSoft: "#f9dde1",
@@ -94,17 +96,17 @@
       pinkSoft: "#f5dbe4",
       blue: "#4a7bb5",
       blueSoft: "#d8e4f2",
- 
+
       // Surfaces
       card: "rgba(255,255,255,0.72)",
       cardSolid: "#ffffff",
       cardDim: "rgba(255,255,255,0.5)",
       border: "rgba(26,21,48,0.08)",
     };
- 
+
     const SH = "0 2px 12px rgba(90,63,199,0.06), 0 1px 3px rgba(26,21,48,0.04)";
     const SH2 = "0 8px 28px rgba(90,63,199,0.12), 0 2px 6px rgba(26,21,48,0.06)";
- 
+
     // ─── Helpers ────────────────────────────────────────────
     // Translucent card on aurora
     const Card = (extra = {}) => ({
@@ -179,7 +181,7 @@
       color: v.inkMuted,
       padding: "18px 22px 10px",
     };
- 
+
     // ─── Icons ──────────────────────────────────────────────
     const Icon = ({ name, size = 20, color = "currentColor", stroke = 2 }) => {
       const p = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: stroke, strokeLinecap: "round", strokeLinejoin: "round" };
@@ -220,7 +222,7 @@
       };
       return icons[name] || null;
     };
- 
+
     // ═══════════════════════════════════════════════════════
     // DATA
     // ═══════════════════════════════════════════════════════
@@ -231,14 +233,14 @@
       metabolicActive: true, // flip to false to see pre-subscribe state
       whatsappLinked: true,
     };
- 
+
     const VITALS = [
       { label: "bpm", value: "72" },
       { label: "Temp", value: "98.4°" },
       { label: "SpO₂", value: "94%" },
       { label: "Steps", value: "6.2k" },
     ];
- 
+
     // Quick services — matches the mockup tile strip
     const QUICK_TILES = [
       { id: "all", label: "All Care", icon: "⚡", badge: null, tint: "#ede8fc" },
@@ -248,7 +250,7 @@
       { id: "nurse", label: "Nurse & Physio", icon: "👩‍⚕️", badge: "≤45m", tint: "#f5e8d0" },
       { id: "metabolic", label: "Metabolic", icon: "⚖️", badge: "NEW", tint: "#dcefe2" },
     ];
- 
+
     const QUICK_SERVICES = [
       { id: "home-visit", title: "Home Visit", sub: "Doctor at your door", eta: "≤ 30 min" },
       { id: "teleconsult", title: "Teleconsult", sub: "Video call — under 5 mins", eta: "5m", instant: true },
@@ -257,7 +259,7 @@
       { id: "nurse", title: "Nurse at Home", sub: "Injections & dressings", eta: "30–45 min" },
       { id: "physio", title: "Physiotherapy", sub: "Express within 60 mins", eta: "≤ 60 min" },
     ];
- 
+
     // Metabolic program — Pranaam Digital integrated into VithYou
     const METABOLIC_PILLARS = [
       { icon: "🤖", title: "Always-on Coaching", sub: "Your AI Companion tuned for GLP-1 care, 24/7 in-app plus WhatsApp reminders." },
@@ -265,7 +267,7 @@
       { icon: "🏥", title: "Hospital Safety Net", sub: "Direct access to 250+ beds across partner hospitals if you ever need more." },
       { icon: "📈", title: "Smart Monitoring", sub: "Weight, waist & glucose trends. MD reviews every renewal." },
     ];
- 
+
     const METABOLIC_PLAN = {
       price: 5999,
       period: "month",
@@ -278,14 +280,14 @@
         "WhatsApp dose reminders (opt-in)",
       ],
     };
- 
+
     const METABOLIC_FAQS = [
       { q: "Is this medication safe?", a: "We dispense only CDSCO-approved generic semaglutide from licensed Indian manufacturers. Every prescription is reviewed by a Pranaam endocrinologist." },
       { q: "What if I need a hospital?", a: "Your program comes with direct access to 250+ beds across partner Pranaam Hospitals. One tap inside the app escalates you to the nearest ICU." },
       { q: "How is this different from a pharmacy?", a: "You get continuous care — medication plus an MD you video consult monthly, an AI coach tracking side-effects, and delivery handled for you." },
       { q: "Can I cancel anytime?", a: "Yes. Cancel from the Programs tab in your Profile. We'll continue fulfilling any already-paid cycle." },
     ];
- 
+
     // Mock: active program state
     const ACTIVE_PROGRAM = {
       week: 6,
@@ -299,7 +301,7 @@
       nextConsult: { date: "Sat, 26 Apr", time: "4:30 PM", doctor: "Dr. Priya Nair", kind: "Endocrinologist" },
       sideEffects: [{ day: "Mon", severity: "mild" }, { day: "Tue", severity: "none" }, { day: "Wed", severity: "mild" }, { day: "Thu", severity: "none" }, { day: "Fri", severity: "none" }],
     };
- 
+
     // Coach chat seed — specialised for GLP-1 / metabolic
     const coachReply = (q) => {
       const s = q.toLowerCase();
@@ -311,11 +313,11 @@
       if (/refill|deliver|medication|pen/.test(s)) return "Your next refill ships tomorrow, 10–11 AM, from our Nallagandla dark store via cold-chain courier. You'll get a WhatsApp tracking link 30 minutes before dispatch.";
       return "I'm your Metabolic Coach — ask me anything about GLP-1 side effects, dosing, nutrition, exercise, or your delivery. For anything that feels urgent, tap 'Talk to Dr. Nair' and I'll escalate.";
     };
- 
+
     // ═══════════════════════════════════════════════════════
     // SHELL COMPONENTS
     // ═══════════════════════════════════════════════════════
- 
+
     // The VithYou wordmark — matches mockup: "vith" Fraunces italic + "You" Fraunces italic colored
     const VithYouMark = ({ size = 22, pill = true }) => (
       <span style={{
@@ -327,7 +329,7 @@
         <span style={{ fontSize: size * 0.6, color: v.navy, marginLeft: 2 }}>🩺</span>
       </span>
     );
- 
+
     // Fake iOS status bar (9:41 · signal · battery)
     const StatusBar = ({ light = false }) => (
       <div style={{
@@ -341,7 +343,7 @@
         </span>
       </div>
     );
- 
+
     // Top-of-screen header with back button — for sub-pages
     const PageHeader = ({ title, onBack, right, centered = true }) => (
       <div style={{ display: "flex", alignItems: "center", padding: "6px 18px 14px", position: "relative" }}>
@@ -350,6 +352,8 @@
             width: 36, height: 36, borderRadius: 100, border: "none",
             background: "rgba(255,255,255,0.85)", boxShadow: SH, cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
+            position: "relative", zIndex: 2, flexShrink: 0,
+            WebkitAppearance: "none", touchAction: "manipulation",
           }}>
             <Icon name="chevL" size={16} color={v.ink} />
           </button>
@@ -358,15 +362,17 @@
           flex: 1, textAlign: centered ? "center" : "left",
           marginLeft: centered && onBack ? -36 : 0,
           display: "flex", alignItems: "center", justifyContent: centered ? "center" : "flex-start", gap: 6,
+          pointerEvents: "none",  // never block back-button taps
+          position: "relative", zIndex: 1,
         }}>
           {typeof title === "string"
             ? <span style={{ fontSize: 15, fontWeight: 600, color: v.ink }}>{title}</span>
             : title}
         </div>
-        {right || <div style={{ width: 36 }} />}
+        {right || <div style={{ width: 36, flexShrink: 0 }} />}
       </div>
     );
- 
+
     // Step progress — row of circles matching the Services flow mockups
     const StepIndicator = ({ steps, current, labels }) => (
       <div style={{ padding: "4px 24px 18px" }}>
@@ -401,7 +407,7 @@
         )}
       </div>
     );
- 
+
     // Bottom nav — matches the mockup: HOME / SEARCH / SERVICES / PROFILE with purple lozenge for active
     const BottomNav = ({ tab, onChange }) => {
       const tabs = [
@@ -438,8 +444,8 @@
         </div>
       );
     };
- 
- 
+
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: HOME
     // ═══════════════════════════════════════════════════════
@@ -447,7 +453,7 @@
       return (
         <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
- 
+
           {/* Header */}
           <div style={{ padding: "2px 20px 18px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
@@ -478,7 +484,7 @@
                 </button>
               </div>
             </div>
- 
+
             {/* Search */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.7)", backdropFilter: "blur(8px)", border: `1px solid ${v.border}`, borderRadius: 100, padding: "11px 16px", boxShadow: SH }}>
               <Icon name="search" size={15} color={v.inkMuted} />
@@ -486,7 +492,7 @@
               <span style={{ fontSize: 14 }}>🩺</span>
             </div>
           </div>
- 
+
           {/* SOS banner */}
           <div style={{ padding: "0 20px", marginBottom: 18 }}>
             <div style={{
@@ -505,7 +511,7 @@
               </button>
             </div>
           </div>
- 
+
           {/* Quick tiles strip */}
           <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 20px 14px" }}>
             {QUICK_TILES.map(tile => (
@@ -543,7 +549,7 @@
               </button>
             ))}
           </div>
- 
+
           {/* Quick Services grid */}
           <div style={SectionLabel}>Quick Services</div>
           <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -571,7 +577,7 @@
               );
             })}
           </div>
- 
+
           {/* Metabolic: pre-subscribe promo OR active dashboard preview */}
           {!USER.metabolicActive ? (
             <div style={{ padding: "20px 20px 0" }}>
@@ -628,7 +634,7 @@
               </div>
             </div>
           )}
- 
+
           {/* AI Active Companion widget */}
           <div style={{ padding: "20px 20px 0" }}>
             <div onClick={() => navigate("metabolic-coach")} style={Card({ padding: 18, cursor: "pointer" })}>
@@ -657,7 +663,7 @@
               </div>
             </div>
           </div>
- 
+
           {/* Daily Health Snapshot */}
           <div style={SectionLabel}>Daily Health Snapshot</div>
           <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -676,14 +682,14 @@
               </div>
             ))}
           </div>
- 
+
           {/* Plans & offers */}
           <div style={{ ...SectionLabel, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span>Plans & offers</span>
-            <span style={{ color: v.purple, fontSize: 11, fontWeight: 700, letterSpacing: "1px" }}>View</span>
+            <span onClick={() => navigate("plans")} style={{ color: v.purple, fontSize: 11, fontWeight: 700, letterSpacing: "1px", cursor: "pointer" }}>View</span>
           </div>
           <div style={{ padding: "0 20px" }}>
-            <div style={Card({ padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" })}>
+            <div onClick={() => navigate("plans")} style={Card({ padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" })}>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 13, color: v.ink }}>Upgrade & save</div>
                 <div style={{ fontSize: 11, color: v.inkMuted, marginTop: 2 }}>Offers · upgrade prompts · annual checkups</div>
@@ -693,7 +699,7 @@
               </div>
             </div>
           </div>
- 
+
           {/* Stats */}
           <div style={{ padding: "14px 20px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
             {[{v:"2.4k",l:"Doctors Live"},{v:"< 30",l:"Min Express"},{v:"90%",l:"Provider Pay"},{v:"KYC",l:"Verified"}].map(s => (
@@ -706,7 +712,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: METABOLIC LANDING
     // ═══════════════════════════════════════════════════════
@@ -720,7 +726,7 @@
             </span>}
             onBack={goBack}
           />
- 
+
           {/* Hero */}
           <div style={{ padding: "0 22px 24px", textAlign: "center" }}>
             <div style={{
@@ -743,7 +749,7 @@
               POWERED WITH <span style={{ color: v.navy }}>PRANAAM HOSPITALS</span>
             </div>
           </div>
- 
+
           {/* Plan card */}
           <div style={{ padding: "0 20px 18px" }}>
             <div style={{
@@ -775,7 +781,7 @@
               </div>
             </div>
           </div>
- 
+
           {/* Four pillars */}
           <div style={SectionLabel}>What's included</div>
           <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -787,7 +793,7 @@
               </div>
             ))}
           </div>
- 
+
           {/* Safety strip */}
           <div style={{ padding: "20px 20px 0" }}>
             <div style={{ ...Card({ padding: 16 }), background: "rgba(255,255,255,0.75)" }}>
@@ -805,7 +811,7 @@
               </div>
             </div>
           </div>
- 
+
           {/* How it works */}
           <div style={SectionLabel}>How it works</div>
           <div style={{ padding: "0 20px" }}>
@@ -829,7 +835,7 @@
               </div>
             ))}
           </div>
- 
+
           {/* FAQ */}
           <div style={SectionLabel}>Questions answered</div>
           <div style={{ padding: "0 20px" }}>
@@ -843,7 +849,7 @@
               </details>
             ))}
           </div>
- 
+
           {/* Bottom CTA */}
           <div style={{ padding: "20px 20px 0" }}>
             <button onClick={() => navigate("metabolic-eligibility")} style={BtnPrimary()}>
@@ -853,7 +859,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: METABOLIC ELIGIBILITY (in-app chat, not WhatsApp)
     // ═══════════════════════════════════════════════════════
@@ -866,7 +872,7 @@
       ];
       const [step, setStep] = useState(0);
       const [answers, setAnswers] = useState([]);
- 
+
       const pick = (opt) => {
         const next = [...answers, opt];
         setAnswers(next);
@@ -876,17 +882,17 @@
           setStep(step + 1);
         }
       };
- 
+
       return (
         <div style={{ paddingBottom: 110, position: "relative", zIndex: 1, minHeight: "100vh" }}>
           <StatusBar />
           <PageHeader title="Eligibility Check" onBack={goBack} />
- 
+
           <StepIndicator
             steps={questions.map((_, i) => `${i + 1}`)}
             current={step}
           />
- 
+
           <div style={{ padding: "0 22px", textAlign: "center", marginBottom: 20 }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "1.5px", color: v.inkMuted, marginBottom: 8 }}>
               QUESTION {step + 1} OF {questions.length}
@@ -895,7 +901,7 @@
               {questions[step].q}
             </div>
           </div>
- 
+
           <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 10 }} className="slide-up" key={step}>
             {questions[step].opts.map(opt => (
               <button key={opt} onClick={() => pick(opt)} style={{
@@ -916,7 +922,7 @@
               </button>
             ))}
           </div>
- 
+
           <div style={{ padding: "28px 20px 0", textAlign: "center" }}>
             <div style={{ fontSize: 11, color: v.inkMuted, lineHeight: 1.5 }}>
               🔒 Your answers are confidential. A Pranaam MD will review and make the final call before any prescription.
@@ -925,7 +931,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: METABOLIC CHECKOUT
     // ═══════════════════════════════════════════════════════
@@ -933,7 +939,7 @@
       const [slot, setSlot] = useState(null);
       const [confirmed, setConfirmed] = useState(false);
       const slots = ["Tomorrow · 10:00 AM", "Tomorrow · 2:30 PM", "Sat · 11:00 AM", "Sat · 4:30 PM"];
- 
+
       if (confirmed) {
         return (
           <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
@@ -979,12 +985,12 @@
           </div>
         );
       }
- 
+
       return (
         <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
           <PageHeader title="Confirm Program" onBack={goBack} />
- 
+
           {/* Success badge */}
           <div style={{ padding: "0 22px", textAlign: "center", marginBottom: 20 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", background: v.greenSoft, borderRadius: 100, fontSize: 11, fontWeight: 700, color: v.green, letterSpacing: "0.5px" }}>
@@ -998,7 +1004,7 @@
               A Pranaam MD will review your history on video before prescribing.
             </div>
           </div>
- 
+
           {/* Slot picker */}
           <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
             {slots.map(s => (
@@ -1014,7 +1020,7 @@
               </button>
             ))}
           </div>
- 
+
           {/* Order summary */}
           <div style={{ padding: "0 20px" }}>
             <div style={Card({ padding: 16 })}>
@@ -1036,7 +1042,7 @@
               </div>
             </div>
           </div>
- 
+
           {/* WhatsApp opt-in */}
           <div style={{ padding: "16px 20px 0" }}>
             <div style={{ ...Card({ padding: 14 }), background: "rgba(220,239,226,0.6)", display: "flex", alignItems: "center", gap: 12 }}>
@@ -1052,7 +1058,7 @@
               </div>
             </div>
           </div>
- 
+
           {/* Confirm CTA */}
           <div style={{ padding: "20px 20px 0" }}>
             <button onClick={() => slot && setConfirmed(true)} disabled={!slot} style={{
@@ -1069,7 +1075,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: METABOLIC DASHBOARD (active program)
     // ═══════════════════════════════════════════════════════
@@ -1078,7 +1084,7 @@
       const weightLoss = p.startWeight - p.currentWeight;
       const totalGoal = p.startWeight - p.goalWeight;
       const progressPct = Math.min(100, (weightLoss / totalGoal) * 100);
- 
+
       return (
         <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
@@ -1088,7 +1094,7 @@
             </span>}
             onBack={goBack}
           />
- 
+
           {/* Hero stat */}
           <div style={{ padding: "0 22px 20px", textAlign: "center" }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "1.5px", color: v.inkMuted, marginBottom: 6 }}>
@@ -1106,7 +1112,7 @@
             </div>
             <div style={{ fontSize: 11, color: v.inkMuted, fontWeight: 600 }}>{Math.round(progressPct)}% to goal</div>
           </div>
- 
+
           {/* Next actions */}
           <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 4 }}>
             {/* Next delivery */}
@@ -1121,7 +1127,7 @@
               <div style={{ fontSize: 11, color: v.inkMuted, marginBottom: 10 }}>10 – 11 AM window</div>
               <button style={{ ...BtnGhost({ padding: "8px 12px", fontSize: 12, width: "100%" }), background: "rgba(255,255,255,0.6)" }}>Track order</button>
             </div>
- 
+
             {/* Next consult */}
             <div style={Card({ padding: 14 })}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
@@ -1135,7 +1141,7 @@
               <button style={{ ...BtnGhost({ padding: "8px 12px", fontSize: 12, width: "100%" }), background: "rgba(255,255,255,0.6)" }}>Reschedule</button>
             </div>
           </div>
- 
+
           {/* Coach entry point */}
           <div style={{ padding: "14px 20px 0" }}>
             <div onClick={() => navigate("metabolic-coach")} style={{
@@ -1155,7 +1161,7 @@
               <Icon name="chevR" size={18} color={v.inkMuted} />
             </div>
           </div>
- 
+
           {/* Dose schedule */}
           <div style={SectionLabel}>Your dose schedule</div>
           <div style={{ padding: "0 20px" }}>
@@ -1178,7 +1184,7 @@
               </div>
             </div>
           </div>
- 
+
           {/* Side-effect check-in */}
           <div style={SectionLabel}>This week's check-in</div>
           <div style={{ padding: "0 20px" }}>
@@ -1206,7 +1212,7 @@
               <button style={{ ...BtnGhost({ padding: "10px 14px", fontSize: 13, width: "100%", marginTop: 12, background: "rgba(255,255,255,0.6)" }) }}>Log today's check-in</button>
             </div>
           </div>
- 
+
           {/* Hospital safety net card */}
           <div style={{ padding: "16px 20px 0" }}>
             <div style={{ ...Card({ padding: 14 }), background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", gap: 12 }}>
@@ -1222,7 +1228,7 @@
               </button>
             </div>
           </div>
- 
+
           {/* Manage */}
           <div style={SectionLabel}>Manage program</div>
           <div style={{ padding: "0 20px 20px" }}>
@@ -1244,7 +1250,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: METABOLIC COACH CHAT
     // ═══════════════════════════════════════════════════════
@@ -1255,9 +1261,9 @@
       const [input, setInput] = useState("");
       const [typing, setTyping] = useState(false);
       const bottomRef = useRef(null);
- 
+
       useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, typing]);
- 
+
       const send = (txt) => {
         const text = (txt || input).trim();
         if (!text) return;
@@ -1269,9 +1275,9 @@
           setTyping(false);
         }, 900);
       };
- 
+
       const suggestions = ["I'm feeling nauseous", "When do I escalate?", "What should I eat?", "Next delivery?"];
- 
+
       return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh", position: "relative", zIndex: 1 }}>
           <StatusBar />
@@ -1294,7 +1300,7 @@
               </button>
             }
           />
- 
+
           {/* Messages */}
           <div style={{ flex: 1, overflowY: "auto", padding: "8px 20px 16px" }}>
             {messages.map((m, i) => (
@@ -1328,7 +1334,7 @@
             )}
             <div ref={bottomRef} />
           </div>
- 
+
           {/* Suggestions */}
           {messages.length <= 1 && (
             <div style={{ padding: "0 20px 10px", display: "flex", gap: 8, overflowX: "auto" }}>
@@ -1348,7 +1354,7 @@
               ))}
             </div>
           )}
- 
+
           {/* Input */}
           <div style={{ padding: "10px 16px 20px", background: "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", borderTop: `1px solid ${v.border}`, display: "flex", gap: 8 }}>
             <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()}
@@ -1370,7 +1376,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SERVICE FLOW DATA
     // ═══════════════════════════════════════════════════════
@@ -1401,7 +1407,7 @@
         { id: "ph2", name: "Anjali M.",        spec: "Physio · Back & posture",      rating: 4.9, visits: 630, eta: 55, fee: 849, verified: true, avatar: "AM", color: "#a9e8c4" },
       ]},
     };
- 
+
     const PHARMACY_CATALOG = [
       { id: "m1",  name: "Paracetamol",   dose: "500mg", cat: "Pain Relief", price: 25,  strip: "10 tablets",  rx: false },
       { id: "m2",  name: "Azithromycin",  dose: "500mg", cat: "Antibiotic",  price: 120, strip: "3 tablets",   rx: true  },
@@ -1414,7 +1420,7 @@
       { id: "m9",  name: "Dolo 650",      dose: "650mg", cat: "Pain Relief", price: 30,  strip: "15 tablets",  rx: false },
       { id: "m10", name: "Vitamin D3",    dose: "60k IU", cat: "Supplement",  price: 110, strip: "4 capsules",  rx: false },
     ];
- 
+
     const LAB_CATALOG = [
       { id: "t1", name: "Complete Blood Count",  desc: "RBC, WBC, hemoglobin, platelets",       price: 350, duration: "6 hrs",  cat: "Blood"    },
       { id: "t2", name: "Lipid Profile",         desc: "Total · LDL · HDL · Triglycerides",    price: 450, duration: "6 hrs",  cat: "Blood"    },
@@ -1425,10 +1431,10 @@
       { id: "t7", name: "Kidney Function Test",  desc: "Creatinine · BUN · Uric acid",         price: 480, duration: "8 hrs",  cat: "Organ"    },
       { id: "t8", name: "Full Body Checkup",     desc: "CBC · Lipid · Thyroid · LFT · KFT · sugar", price: 1999, duration: "24 hrs", cat: "Package" },
     ];
- 
+
     const FLOW_STEPS = ["📝", "⚡", "🔍", "👤", "📄", "📍", "✓"];
     const FLOW_LABELS = ["DETAILS", "TIER", "MATCH", "CONFIRM", "PROFILE", "TRACK", "DONE"];
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: SERVICE · STEP 1 · DETAILS
     // ═══════════════════════════════════════════════════════
@@ -1438,19 +1444,19 @@
       const [symptoms, setSymptoms] = useState(data?.symptoms || "");
       const [notes, setNotes] = useState("");
       const cart = data?.cart;
- 
+
       return (
         <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
           <PageHeader title={<span style={{ display: "flex", alignItems: "center", gap: 6 }}>🩺 {meta.title}</span>} onBack={goBack} />
           <StepIndicator steps={FLOW_STEPS} current={0} labels={FLOW_LABELS} />
- 
+
           <div style={{ padding: "0 22px", textAlign: "center", marginBottom: 18 }}>
             <div style={{ width: 64, height: 64, borderRadius: 100, background: "rgba(255,255,255,0.75)", boxShadow: SH, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, margin: "0 auto 10px" }}>{meta.icon}</div>
             <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 24, color: v.ink, letterSpacing: "-0.02em" }}>{meta.title}</div>
             <div style={{ fontSize: 12, color: v.inkMuted, marginTop: 4 }}>Tell us what you need</div>
           </div>
- 
+
           {cart && cart.length > 0 && (
             <div style={{ padding: "0 20px 14px" }}>
               <div style={Card({ padding: 14 })}>
@@ -1466,7 +1472,7 @@
               </div>
             </div>
           )}
- 
+
           <div style={{ padding: "0 20px" }}>
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: v.ink, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
@@ -1475,7 +1481,7 @@
               <textarea value={symptoms} onChange={e => setSymptoms(e.target.value)} placeholder={meta.prompt} rows={3}
                 style={{ width: "100%", padding: "12px 14px", borderRadius: 14, border: `1px solid ${v.border}`, background: "rgba(255,255,255,0.8)", fontSize: 13, outline: "none", fontFamily: "inherit", color: v.ink, resize: "vertical", lineHeight: 1.5 }} />
             </div>
- 
+
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: v.ink, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ fontSize: 14 }}>📍</span> Location
@@ -1486,7 +1492,7 @@
                 <span style={{ fontSize: 14 }}>✏️</span>
               </div>
             </div>
- 
+
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: v.ink, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ fontSize: 14 }}>💬</span> Additional notes <span style={{ color: v.inkMuted, fontWeight: 500 }}>(optional)</span>
@@ -1494,14 +1500,14 @@
               <input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Any special instructions…"
                 style={{ width: "100%", padding: "12px 14px", borderRadius: 14, border: `1px solid ${v.border}`, background: "rgba(255,255,255,0.8)", fontSize: 13, outline: "none", fontFamily: "inherit", color: v.ink }} />
             </div>
- 
+
             <div style={{ ...Card({ padding: 12, background: "rgba(220,239,226,0.5)" }), display: "flex", gap: 10, alignItems: "flex-start" }}>
               <span style={{ fontSize: 14 }}>ℹ️</span>
               <div style={{ fontSize: 11, color: v.inkSoft, lineHeight: 1.5 }}>
                 Your details are shared only with the assigned provider after confirmation.
               </div>
             </div>
- 
+
             <button onClick={() => navigate("service-tier", { service, symptoms, notes, cart })}
               style={{ ...BtnPrimary({ marginTop: 20 }) }}>
               Continue →
@@ -1510,7 +1516,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: SERVICE · STEP 2 · TIER
     // ═══════════════════════════════════════════════════════
@@ -1523,19 +1529,19 @@
         { id: "scheduled", icon: "🗓️", title: "Scheduled", sla: "Pick a time", surge: "Lowest price",     desc: "Choose a time window that works for you." },
       ];
       const selectedTier = tiers.find(tt => tt.id === tier);
- 
+
       return (
         <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
           <PageHeader title={<span style={{ display: "flex", alignItems: "center", gap: 6 }}>🩺 {meta.title}</span>} onBack={goBack} />
           <StepIndicator steps={FLOW_STEPS} current={1} labels={FLOW_LABELS} />
- 
+
           <div style={{ padding: "0 22px", textAlign: "center", marginBottom: 18 }}>
             <div style={{ width: 56, height: 56, borderRadius: 100, background: "rgba(255,255,255,0.75)", boxShadow: SH, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, margin: "0 auto 10px" }}>⚡</div>
             <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22, color: v.ink, letterSpacing: "-0.02em" }}>Service Tier</div>
             <div style={{ fontSize: 12, color: v.inkMuted, marginTop: 4 }}>Express · Priority · Scheduled</div>
           </div>
- 
+
           <div style={{ padding: "0 20px 14px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
             {tiers.map(tt => (
               <button key={tt.id} onClick={() => setTier(tt.id)} style={{
@@ -1549,7 +1555,7 @@
               </button>
             ))}
           </div>
- 
+
           <div style={{ padding: "0 20px" }}>
             <div style={{ ...Card({ padding: 16 }), background: "linear-gradient(135deg, rgba(245,219,228,0.6), rgba(245,232,208,0.4))" }}>
               <span style={Pill("rgba(255,255,255,0.85)", v.red)}>{selectedTier.icon} {selectedTier.title}</span>
@@ -1558,7 +1564,7 @@
               <div style={{ fontSize: 13, color: v.inkSoft, lineHeight: 1.5 }}>{selectedTier.desc}</div>
             </div>
           </div>
- 
+
           <div style={{ padding: "20px 20px 0" }}>
             <button onClick={() => navigate("service-match", { ...data, tier })} style={BtnPrimary()}>
               Find Providers →
@@ -1567,7 +1573,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: SERVICE · STEP 3 · MATCH
     // ═══════════════════════════════════════════════════════
@@ -1576,13 +1582,13 @@
       const providers = meta.providers;
       const [searching, setSearching] = useState(true);
       useEffect(() => { const tm = setTimeout(() => setSearching(false), 1400); return () => clearTimeout(tm); }, []);
- 
+
       return (
         <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
           <PageHeader title={<span style={{ display: "flex", alignItems: "center", gap: 6 }}>🩺 {meta.title}</span>} onBack={goBack} />
           <StepIndicator steps={FLOW_STEPS} current={2} labels={FLOW_LABELS} />
- 
+
           <div style={{ padding: "0 22px", textAlign: "center", marginBottom: 16 }}>
             <div style={{ position: "relative", width: 80, height: 80, margin: "0 auto 14px" }}>
               {searching && (
@@ -1600,7 +1606,7 @@
               {meta.icon} {meta.title} · {data?.tier || "priority"}
             </div>
           </div>
- 
+
           <div style={{ padding: "0 20px 14px" }}>
             <div style={Card({ padding: 14 })}>
               {[
@@ -1617,7 +1623,7 @@
               ))}
             </div>
           </div>
- 
+
           {!searching && (
             <>
               <div style={{ ...SectionLabel, padding: "6px 22px 8px" }}>📍 {providers.length} providers nearby</div>
@@ -1656,7 +1662,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: SERVICE · STEP 4 · CONFIRM
     // ═══════════════════════════════════════════════════════
@@ -1665,13 +1671,13 @@
       const p = data?.provider;
       const cartTotal = data?.cart ? data.cart.reduce((s, x) => s + x.price * (x.qty || 1), 0) : 0;
       const total = (p?.fee || 0) + cartTotal;
- 
+
       return (
         <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
           <PageHeader title={<span style={{ display: "flex", alignItems: "center", gap: 6 }}>🩺 {meta.title}</span>} onBack={goBack} />
           <StepIndicator steps={FLOW_STEPS} current={3} labels={FLOW_LABELS} />
- 
+
           <div style={{ padding: "0 22px", textAlign: "center", marginBottom: 18 }}>
             <div style={{ position: "relative", width: 70, height: 70, margin: "0 auto 14px" }}>
               <div style={{ width: 70, height: 70, borderRadius: 100, background: p.color, boxShadow: SH, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 22, color: v.ink }}>{p.avatar}</div>
@@ -1682,7 +1688,7 @@
             <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22, color: v.ink, letterSpacing: "-0.02em" }}>Awaiting Confirmation…</div>
             <div style={{ fontSize: 12, color: v.inkMuted, marginTop: 4 }}>{p.name} · {p.spec}</div>
           </div>
- 
+
           <div style={{ padding: "0 20px" }}>
             <div style={Card({ padding: 16 })}>
               {[
@@ -1702,7 +1708,7 @@
               ))}
             </div>
           </div>
- 
+
           <div style={{ padding: "20px 20px 0" }}>
             <button onClick={() => navigate("service-profile", data)} style={BtnPrimary()}>
               Confirm & Proceed →
@@ -1714,7 +1720,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: SERVICE · STEP 5 · PROFILE
     // ═══════════════════════════════════════════════════════
@@ -1726,13 +1732,13 @@
         { by: "Amit R.",  stars: 5, text: "Great service, explained everything clearly." },
       ];
       const creds = ["MBBS — Top Medical Institution", "MD — Specialisation", "KYC Verified by VithYou"];
- 
+
       return (
         <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
           <PageHeader title={<span style={{ display: "flex", alignItems: "center", gap: 6 }}>🩺 {meta.title}</span>} onBack={goBack} />
           <StepIndicator steps={FLOW_STEPS} current={4} labels={FLOW_LABELS} />
- 
+
           <div style={{ padding: "0 20px" }}>
             <div style={Card({ padding: 16, display: "flex", alignItems: "center", gap: 14 })}>
               <div style={{ width: 58, height: 58, borderRadius: 100, background: p.color, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 18, color: v.ink, flexShrink: 0, position: "relative" }}>
@@ -1757,7 +1763,7 @@
               </div>
             </div>
           </div>
- 
+
           <div style={{ padding: "12px 20px 0" }}>
             <div style={Card({ padding: 14 })}>
               <div style={{ fontSize: 12, color: v.inkSoft, lineHeight: 1.6 }}>
@@ -1765,7 +1771,7 @@
               </div>
             </div>
           </div>
- 
+
           <div style={{ padding: "12px 20px 0" }}>
             <div style={Card({ padding: 14 })}>
               {creds.map((c, i) => (
@@ -1776,7 +1782,7 @@
               ))}
             </div>
           </div>
- 
+
           <div style={{ padding: "12px 20px 0" }}>
             {reviews.map(r => (
               <div key={r.by} style={Card({ padding: 14, marginBottom: 8 })}>
@@ -1788,7 +1794,7 @@
               </div>
             ))}
           </div>
- 
+
           <div style={{ padding: "20px 20px 0" }}>
             <button onClick={() => navigate("service-track", data)} style={BtnPrimary()}>
               Track Provider Live →
@@ -1797,7 +1803,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: SERVICE · STEP 6 · TRACK
     // ═══════════════════════════════════════════════════════
@@ -1810,13 +1816,13 @@
         const t2 = setTimeout(() => setProgress(2), 3500);
         return () => { clearTimeout(t1); clearTimeout(t2); };
       }, []);
- 
+
       return (
         <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
           <PageHeader title={<span style={{ display: "flex", alignItems: "center", gap: 6 }}>🩺 {meta.title}</span>} onBack={goBack} />
           <StepIndicator steps={FLOW_STEPS} current={5} labels={FLOW_LABELS} />
- 
+
           <div style={{ padding: "0 22px", textAlign: "center", marginBottom: 16 }}>
             <div style={{ fontSize: 34, marginBottom: 4 }}>{progress === 2 ? "✅" : "📍"}</div>
             <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22, color: v.ink, letterSpacing: "-0.02em" }}>
@@ -1824,7 +1830,7 @@
             </div>
             <div style={{ fontSize: 12, color: v.inkMuted, marginTop: 4 }}>{p.name} · At your location</div>
           </div>
- 
+
           <div style={{ padding: "0 20px" }}>
             <div style={{ ...Card({ padding: 0 }), overflow: "hidden", position: "relative" }}>
               <div style={{ background: "linear-gradient(135deg, #e4eaf2, #dbe4ec)", height: 180, position: "relative" }}>
@@ -1832,19 +1838,19 @@
                   {[...Array(6)].map((_, i) => <line key={`h${i}`} x1="0" x2="300" y1={i * 30 + 15} y2={i * 30 + 15} stroke="rgba(111,82,224,0.08)" strokeWidth="1" />)}
                   {[...Array(10)].map((_, i) => <line key={`vv${i}`} y1="0" y2="180" x1={i * 30 + 15} x2={i * 30 + 15} stroke="rgba(111,82,224,0.08)" strokeWidth="1" />)}
                 </svg>
- 
+
                 <div style={{ position: "absolute", top: 14, left: 14, background: "#fff", borderRadius: 100, padding: "8px 12px", boxShadow: SH, fontWeight: 700, fontSize: 11, color: v.ink, display: "flex", alignItems: "center", gap: 4 }}>
                   <span style={{ fontFamily: "'Fraunces', serif", fontSize: 16 }}>{progress === 2 ? 0 : progress === 1 ? 3 : p.eta - 8}</span>
                   <span style={{ fontSize: 9, color: v.inkMuted, fontWeight: 700, letterSpacing: "0.5px" }}>min</span>
                 </div>
- 
+
                 <div style={{ position: "absolute", top: 14, right: 14, display: "flex", gap: 6 }}>
                   <button style={{ background: "#fff", border: "none", borderRadius: 100, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: v.red, cursor: "pointer", boxShadow: SH, display: "flex", alignItems: "center", gap: 4 }}>
                     <Icon name="phone" size={11} color={v.red} /> Call
                   </button>
                   <button style={{ background: "#fff", border: "none", borderRadius: 100, padding: "7px 12px", fontSize: 11, fontWeight: 700, color: v.inkSoft, cursor: "pointer", boxShadow: SH }}>💬 Chat</button>
                 </div>
- 
+
                 <div style={{ position: "absolute", top: progress === 2 ? "48%" : "52%", left: progress === 0 ? "28%" : progress === 1 ? "42%" : "52%", display: "flex", alignItems: "center", gap: 2, transition: "all 1.5s ease-in-out" }}>
                   <div style={{ width: 28, height: 28, borderRadius: 100, background: p.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: v.ink, border: "2px solid #fff", boxShadow: SH }}>{p.avatar}</div>
                 </div>
@@ -1855,7 +1861,7 @@
               </div>
             </div>
           </div>
- 
+
           <div style={{ padding: "12px 20px 0" }}>
             <div style={Card({ padding: 16 })}>
               {[
@@ -1875,7 +1881,7 @@
               ))}
             </div>
           </div>
- 
+
           <div style={{ padding: "20px 20px 0" }}>
             <button onClick={() => navigate("service-done", data)} disabled={progress < 2}
               style={{ ...BtnPrimary(), opacity: progress >= 2 ? 1 : 0.45, cursor: progress >= 2 ? "pointer" : "not-allowed" }}>
@@ -1885,7 +1891,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: SERVICE · STEP 7 · DONE
     // ═══════════════════════════════════════════════════════
@@ -1896,13 +1902,13 @@
       const total = (p?.fee || 0) + cartTotal;
       const [stars, setStars] = useState(0);
       const [feedback, setFeedback] = useState("");
- 
+
       return (
         <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
           <PageHeader title={<span style={{ display: "flex", alignItems: "center", gap: 6 }}>🩺 {meta.title}</span>} onBack={() => navigate("home")} />
           <StepIndicator steps={FLOW_STEPS} current={6} labels={FLOW_LABELS} />
- 
+
           <div style={{ padding: "0 22px", textAlign: "center", marginBottom: 20 }}>
             <div style={{ width: 68, height: 68, borderRadius: 18, background: v.green, boxShadow: "0 10px 28px rgba(74,155,110,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
               <Icon name="check" size={34} color="#fff" stroke={3} />
@@ -1910,7 +1916,7 @@
             <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 26, color: v.ink, letterSpacing: "-0.02em" }}>Service Completed!</div>
             <div style={{ fontSize: 13, color: v.inkMuted, marginTop: 4 }}>{meta.title} with {p.name}</div>
           </div>
- 
+
           <div style={{ padding: "0 20px" }}>
             <div style={Card({ padding: 14 })}>
               {[
@@ -1927,7 +1933,7 @@
               ))}
             </div>
           </div>
- 
+
           <div style={{ padding: "14px 20px 0", textAlign: "center" }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: v.ink, marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
               <span style={{ fontSize: 14 }}>⭐</span> Rate your experience
@@ -1940,14 +1946,14 @@
             <textarea value={feedback} onChange={e => setFeedback(e.target.value)} rows={2} placeholder="Share your feedback (optional)…"
               style={{ width: "100%", padding: "12px 14px", borderRadius: 14, border: `1px solid ${v.border}`, background: "rgba(255,255,255,0.8)", fontSize: 13, outline: "none", fontFamily: "inherit", color: v.ink, resize: "vertical" }} />
           </div>
- 
+
           <div style={{ padding: "20px 20px 0" }}>
             <button onClick={() => navigate("home")} style={BtnPrimary()}>Submit & Go Home →</button>
           </div>
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: PHARMACY CATALOG
     // ═══════════════════════════════════════════════════════
@@ -1960,12 +1966,12 @@
       const cartItems = Object.values(cart);
       const cartCount = cartItems.reduce((s, x) => s + x.qty, 0);
       const cartTotal = cartItems.reduce((s, x) => s + x.price * x.qty, 0);
- 
+
       return (
         <div style={{ paddingBottom: cartCount > 0 ? 170 : 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
           <PageHeader title={<span>💊 Order Medicines</span>} onBack={goBack} />
- 
+
           <div style={{ padding: "0 20px 14px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.85)", border: `1px solid ${v.border}`, borderRadius: 100, padding: "12px 16px", boxShadow: SH }}>
               <Icon name="search" size={15} color={v.inkMuted} />
@@ -1973,7 +1979,7 @@
                 style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, outline: "none", color: v.ink, fontFamily: "inherit" }} />
             </div>
           </div>
- 
+
           <div style={{ padding: "0 20px 14px" }}>
             <div style={{ ...Card({ padding: 14 }), background: "rgba(237,232,252,0.55)", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
               <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fff", boxShadow: SH, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📸</div>
@@ -1984,7 +1990,7 @@
               <Icon name="chevR" size={14} color={v.inkMuted} />
             </div>
           </div>
- 
+
           <div style={SectionLabel}>{filtered.length} medicines</div>
           <div style={{ padding: "0 20px" }}>
             {filtered.map(m => {
@@ -2018,7 +2024,7 @@
               );
             })}
           </div>
- 
+
           {cartCount > 0 && (
             <div style={{ position: "fixed", bottom: 82, left: "50%", transform: "translateX(-50%)", width: "calc(100% - 40px)", maxWidth: 390, zIndex: 99 }}>
               <button onClick={() => navigate("service-details", { service: "pharmacy", cart: cartItems })}
@@ -2034,7 +2040,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: LAB TEST CATALOG
     // ═══════════════════════════════════════════════════════
@@ -2050,12 +2056,12 @@
       const toggle = tt => setSelected(s => { const x = { ...s }; if (x[tt.id]) delete x[tt.id]; else x[tt.id] = { ...tt, qty: 1 }; return x; });
       const selItems = Object.values(selected);
       const selTotal = selItems.reduce((s, x) => s + x.price, 0);
- 
+
       return (
         <div style={{ paddingBottom: selItems.length > 0 ? 170 : 110, position: "relative", zIndex: 1 }}>
           <StatusBar />
           <PageHeader title={<span>🧪 Book Lab Tests</span>} onBack={goBack} />
- 
+
           <div style={{ padding: "0 20px 12px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.85)", border: `1px solid ${v.border}`, borderRadius: 100, padding: "12px 16px", boxShadow: SH }}>
               <Icon name="search" size={15} color={v.inkMuted} />
@@ -2063,7 +2069,7 @@
                 style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, outline: "none", color: v.ink, fontFamily: "inherit" }} />
             </div>
           </div>
- 
+
           <div style={{ padding: "0 20px 14px", display: "flex", gap: 6, overflowX: "auto" }}>
             {cats.map(c => (
               <button key={c} onClick={() => setCat(c)} style={{
@@ -2075,7 +2081,7 @@
               }}>{c}</button>
             ))}
           </div>
- 
+
           <div style={SectionLabel}>{filtered.length} tests available</div>
           <div style={{ padding: "0 20px" }}>
             {filtered.map(tt => {
@@ -2109,7 +2115,7 @@
               );
             })}
           </div>
- 
+
           {selItems.length > 0 && (
             <div style={{ position: "fixed", bottom: 82, left: "50%", transform: "translateX(-50%)", width: "calc(100% - 40px)", maxWidth: 390, zIndex: 99 }}>
               <button onClick={() => navigate("service-details", { service: "lab", cart: selItems })}
@@ -2125,7 +2131,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: NOTIFICATIONS
     // ═══════════════════════════════════════════════════════
@@ -2161,7 +2167,371 @@
         </div>
       );
     }
- 
+
+    // ═══════════════════════════════════════════════════════
+    // SCREEN: PLANS (Upgrade & save)
+    // ═══════════════════════════════════════════════════════
+    const PLANS = {
+      plus: {
+        id: "plus",
+        name: "VithYou Plus",
+        tag: "Lifestyle & wellness",
+        emoji: "✨",
+        gradient: "linear-gradient(135deg, rgba(237,232,252,0.95), rgba(216,228,242,0.85), rgba(245,219,228,0.7))",
+        accent: "#6F52E0",
+        accentSoft: "#ede8fc",
+        priceMonth: 1999,
+        priceYear: 19999,
+        yearSavings: "Save ₹4,989 vs monthly",
+        tagline: "Your everyday health, handled.",
+        sub: "Doctors, AI coach, and holistic care for the whole family.",
+        features: [
+          { icon: "🤖", title: "Unlimited AI Companion", sub: "24/7 priority chat with full medical context" },
+          { icon: "📹", title: "4 doctor video consults / month", sub: "Any specialty · GP, paediatrician, dermat & more" },
+          { icon: "🌿", title: "2 holistic coaching sessions / month", sub: "Pick from dietitian, dermatologist, mental health, fitness" },
+          { icon: "⚡", title: "Priority booking, zero booking fees", sub: "Skip the queue on home visits & teleconsults" },
+          { icon: "🧪", title: "20% off labs & pharmacy delivery", sub: "Applied automatically at checkout" },
+          { icon: "👨‍👩‍👧", title: "Family sharing — up to 3 dependents", sub: "Manage care for parents, kids & spouse" },
+        ],
+        bestFor: "General wellness, busy families, preventive care",
+      },
+      metabolic: {
+        id: "metabolic",
+        name: "Metabolic Program",
+        tag: "Doctor-led GLP-1 care",
+        emoji: "⚖️",
+        gradient: "linear-gradient(135deg, rgba(237,232,252,0.95), rgba(220,239,226,0.85), rgba(245,219,228,0.65))",
+        accent: "#4a9b6e",
+        accentSoft: "#dcefe2",
+        priceMonth: 5999,
+        priceYear: null, // monthly only
+        yearSavings: null,
+        tagline: "Metabolic care, made simple.",
+        sub: "Powered with Pranaam Hospitals · medication, MD oversight & delivery.",
+        features: [
+          { icon: "💊", title: "Licensed GLP-1 medication", sub: "CDSCO-approved generics, delivered monthly" },
+          { icon: "🩺", title: "Monthly endocrinologist consult", sub: "Pranaam MD reviews progress & adjusts dose" },
+          { icon: "🤖", title: "AI Coach in Metabolic mode", sub: "Side-effect tracking, dose Q&A, meal guidance" },
+          { icon: "📈", title: "Weight, waist & vitals tracking", sub: "Trends reviewed before every refill" },
+          { icon: "🚚", title: "60-min cold-chain delivery", sub: "From your nearest dark store" },
+          { icon: "💬", title: "WhatsApp dose reminders", sub: "Optional · stays in sync with the app" },
+          { icon: "🛡️", title: "Hospital safety net", sub: "Direct access to 250+ Pranaam beds" },
+        ],
+        bestFor: "Weight loss, blood sugar control, metabolic syndrome",
+      },
+    };
+
+    function PlansScreen({ navigate, goBack }) {
+      const [billing, setBilling] = useState("month"); // "month" | "year"
+      const [selected, setSelected] = useState("plus");
+      const plan = PLANS[selected];
+      const showYear = billing === "year" && plan.priceYear;
+      const price = showYear ? plan.priceYear : plan.priceMonth;
+      const period = showYear ? "year" : "month";
+
+      return (
+        <div style={{ paddingBottom: 130, position: "relative", zIndex: 1 }}>
+          <StatusBar />
+          <PageHeader title="Choose your plan" onBack={goBack} />
+
+          {/* Hero */}
+          <div style={{ padding: "0 22px 20px", textAlign: "center" }}>
+            <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 28, color: v.ink, letterSpacing: "-0.025em", lineHeight: 1.15 }}>
+              Upgrade & save<br/>
+              <span style={{ fontStyle: "italic", color: v.purple }}>on every visit.</span>
+            </div>
+            <div style={{ fontSize: 13, color: v.inkMuted, marginTop: 8, lineHeight: 1.5 }}>
+              Two ways to get more from VithYou. Cancel anytime.
+            </div>
+          </div>
+
+          {/* Plan switcher tabs */}
+          <div style={{ padding: "0 20px 14px" }}>
+            <div style={{ display: "flex", background: "rgba(255,255,255,0.6)", borderRadius: 14, padding: 4, border: `1px solid ${v.border}` }}>
+              {[
+                { id: "plus",      label: "VithYou Plus",     emoji: "✨" },
+                { id: "metabolic", label: "Metabolic Program", emoji: "⚖️" },
+              ].map(t => (
+                <button key={t.id} onClick={() => setSelected(t.id)} style={{
+                  flex: 1, border: "none",
+                  background: selected === t.id ? "#fff" : "transparent",
+                  color: selected === t.id ? v.ink : v.inkMuted,
+                  borderRadius: 11, padding: "10px 8px",
+                  fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
+                  boxShadow: selected === t.id ? "0 2px 8px rgba(26,21,48,0.06)" : "none",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
+                  transition: "all 0.15s",
+                }}>
+                  <span>{t.emoji}</span> {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Active plan card */}
+          <div style={{ padding: "0 20px" }}>
+            <div style={{
+              ...Card({ padding: 20 }),
+              background: plan.gradient,
+              border: `1.5px solid ${plan.accent}33`,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 28 }}>{plan.emoji}</span>
+                <span style={Pill("rgba(255,255,255,0.85)", plan.accent)}>{plan.tag}</span>
+              </div>
+              <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 26, color: v.ink, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 4 }}>
+                {plan.name}
+              </div>
+              <div style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 15, color: v.inkSoft, marginBottom: 8 }}>
+                {plan.tagline}
+              </div>
+              <div style={{ fontSize: 12, color: v.inkMuted, lineHeight: 1.5, marginBottom: 18 }}>
+                {plan.sub}
+              </div>
+
+              {/* Billing toggle (only for plans with annual option) */}
+              {plan.priceYear && (
+                <div style={{ display: "flex", background: "rgba(255,255,255,0.55)", borderRadius: 12, padding: 4, marginBottom: 16, border: `1px solid ${v.border}` }}>
+                  {[
+                    { id: "month", label: "Monthly" },
+                    { id: "year",  label: "Annual" },
+                  ].map(b => (
+                    <button key={b.id} onClick={() => setBilling(b.id)} style={{
+                      flex: 1, border: "none",
+                      background: billing === b.id ? plan.accent : "transparent",
+                      color: billing === b.id ? "#fff" : v.inkSoft,
+                      borderRadius: 9, padding: "8px 12px",
+                      fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
+                      transition: "all 0.15s",
+                    }}>
+                      {b.label}
+                      {b.id === "year" && (
+                        <span style={{ marginLeft: 6, fontSize: 10, padding: "1px 7px", borderRadius: 100, background: billing === b.id ? "rgba(255,255,255,0.25)" : v.greenSoft, color: billing === b.id ? "#fff" : v.green, fontWeight: 700 }}>
+                          Save 17%
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Price */}
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
+                <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 38, color: v.ink, letterSpacing: "-0.02em", lineHeight: 1 }}>₹{price.toLocaleString("en-IN")}</span>
+                <span style={{ fontSize: 14, color: v.inkMuted, fontWeight: 500 }}>/ {period}</span>
+              </div>
+              {showYear && plan.yearSavings && (
+                <div style={{ fontSize: 12, color: v.green, fontWeight: 600, marginBottom: 16 }}>
+                  ✓ {plan.yearSavings}
+                </div>
+              )}
+              {!plan.priceYear && (
+                <div style={{ fontSize: 11, color: v.inkMuted, marginBottom: 16 }}>
+                  Monthly billing · auto-debit UPI
+                </div>
+              )}
+
+              {/* Features */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 18 }}>
+                {plan.features.map((f, i) => (
+                  <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
+                      {f.icon}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: 13, color: v.ink, marginBottom: 1 }}>{f.title}</div>
+                      <div style={{ fontSize: 11, color: v.inkMuted, lineHeight: 1.4 }}>{f.sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Best for */}
+              <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 12, padding: "10px 12px", marginBottom: 16, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                <span style={{ fontSize: 13 }}>💡</span>
+                <div style={{ fontSize: 11, color: v.inkSoft, lineHeight: 1.5 }}>
+                  <strong>Best for:</strong> {plan.bestFor}
+                </div>
+              </div>
+
+              {/* CTA */}
+              <button onClick={() => {
+                if (selected === "metabolic") navigate(USER.metabolicActive ? "metabolic-dashboard" : "metabolic");
+                else navigate("plans-checkout", { plan: selected, billing, price, period });
+              }} style={{
+                ...BtnPrimary({ background: plan.accent, boxShadow: `0 4px 14px ${plan.accent}40` }),
+              }}>
+                {selected === "metabolic" && USER.metabolicActive
+                  ? "Manage your program →"
+                  : `Get ${plan.name} · ₹${price.toLocaleString("en-IN")}/${period === "year" ? "yr" : "mo"}`}
+              </button>
+              <div style={{ fontSize: 11, color: v.inkMuted, textAlign: "center", marginTop: 10 }}>
+                Cancel anytime · No hidden fees
+              </div>
+            </div>
+          </div>
+
+          {/* Compare plans note */}
+          <div style={{ padding: "20px 20px 0" }}>
+            <div style={{ ...Card({ padding: 14 }), display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 20 }}>🤔</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 12, color: v.ink }}>Not sure which one?</div>
+                <div style={{ fontSize: 11, color: v.inkMuted, marginTop: 2, lineHeight: 1.4 }}>
+                  Plus is for everyday wellness. Metabolic is a focused weight & blood-sugar program with medication. You can subscribe to both.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust strip */}
+          <div style={{ padding: "16px 20px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+            {[
+              { i: "🔒", t: "DPDP compliant", s: "Your data stays in India" },
+              { i: "✓",  t: "KYC verified providers", s: "Every doctor audited" },
+              { i: "↩️", t: "Cancel anytime", s: "No lock-in, full refund" },
+            ].map((tr, i) => (
+              <div key={i} style={{ background: "rgba(255,255,255,0.55)", border: `1px solid ${v.border}`, borderRadius: 12, padding: "10px 8px", textAlign: "center" }}>
+                <div style={{ fontSize: 18, marginBottom: 4 }}>{tr.i}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: v.ink, lineHeight: 1.2, marginBottom: 2 }}>{tr.t}</div>
+                <div style={{ fontSize: 9, color: v.inkMuted, lineHeight: 1.3 }}>{tr.s}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // SCREEN: PLANS CHECKOUT (for VithYou Plus)
+    // ═══════════════════════════════════════════════════════
+    function PlansCheckoutScreen({ navigate, goBack, data }) {
+      const plan = PLANS[data?.plan || "plus"];
+      const price = data?.price || plan.priceMonth;
+      const period = data?.period || "month";
+      const [confirmed, setConfirmed] = useState(false);
+
+      if (confirmed) {
+        return (
+          <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
+            <StatusBar />
+            <PageHeader title="" onBack={() => navigate("home")} />
+            <div style={{ padding: "40px 24px", textAlign: "center" }}>
+              <div style={{
+                width: 88, height: 88, borderRadius: 100, background: plan.accent,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                margin: "0 auto 20px",
+                boxShadow: `0 10px 28px ${plan.accent}55`,
+              }}>
+                <Icon name="check" size={42} color="#fff" stroke={3} />
+              </div>
+              <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 28, color: v.ink, letterSpacing: "-0.02em", marginBottom: 10 }}>
+                Welcome to {plan.name}!
+              </div>
+              <div style={{ fontSize: 14, color: v.inkSoft, lineHeight: 1.55, marginBottom: 24, maxWidth: 320, margin: "0 auto 24px" }}>
+                Your benefits are active immediately. Start using priority booking, AI coach, and discounts right now.
+              </div>
+              <div style={Card({ padding: 16, textAlign: "left", marginBottom: 16 })}>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "1.2px", color: v.inkMuted, textTransform: "uppercase", marginBottom: 10 }}>What's unlocked</div>
+                {plan.features.slice(0, 4).map((f, i) => (
+                  <div key={i} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: i < 3 ? `1px solid ${v.border}` : "none", alignItems: "center" }}>
+                    <span style={{ fontSize: 16 }}>{f.icon}</span>
+                    <span style={{ fontSize: 12, color: v.inkSoft, fontWeight: 500 }}>{f.title}</span>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => navigate("home")} style={BtnPrimary()}>
+                Back to home →
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div style={{ paddingBottom: 110, position: "relative", zIndex: 1 }}>
+          <StatusBar />
+          <PageHeader title="Confirm subscription" onBack={goBack} />
+
+          {/* Plan summary */}
+          <div style={{ padding: "0 20px 16px" }}>
+            <div style={{
+              ...Card({ padding: 16 }),
+              background: plan.gradient,
+              border: `1.5px solid ${plan.accent}33`,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                <span style={{ fontSize: 24 }}>{plan.emoji}</span>
+                <div>
+                  <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 18, color: v.ink, letterSpacing: "-0.01em" }}>{plan.name}</div>
+                  <div style={{ fontSize: 11, color: v.inkMuted }}>{plan.tag}</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 28, color: v.ink, letterSpacing: "-0.02em" }}>₹{price.toLocaleString("en-IN")}</span>
+                <span style={{ fontSize: 13, color: v.inkMuted }}>/ {period}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Billing breakdown */}
+          <div style={SectionLabel}>Billing summary</div>
+          <div style={{ padding: "0 20px" }}>
+            <div style={Card({ padding: 16 })}>
+              {[
+                [`${plan.name} · ${period === "year" ? "Annual" : "Monthly"}`, `₹${price.toLocaleString("en-IN")}`],
+                ["GST (18%)", `₹${Math.round(price * 0.18).toLocaleString("en-IN")}`],
+                ["Activation fee", "Free"],
+              ].map(([l, r]) => (
+                <div key={l} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: `1px solid ${v.border}`, fontSize: 13 }}>
+                  <span style={{ color: v.inkSoft }}>{l}</span>
+                  <span style={{ fontWeight: 600, color: r === "Free" ? v.green : v.ink }}>{r}</span>
+                </div>
+              ))}
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0 4px", fontSize: 15 }}>
+                <span style={{ fontWeight: 700, color: v.ink }}>Total today</span>
+                <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22, color: v.ink }}>
+                  ₹{Math.round(price * 1.18).toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment method */}
+          <div style={SectionLabel}>Payment method</div>
+          <div style={{ padding: "0 20px" }}>
+            <div style={{ ...Card({ padding: 14 }), display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: v.purpleSoft, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+                💳
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 13, color: v.ink }}>UPI AutoPay</div>
+                <div style={{ fontSize: 11, color: v.inkMuted, marginTop: 1 }}>priya.sharma@okaxis · auto-renews {period === "year" ? "yearly" : "monthly"}</div>
+              </div>
+              <span style={Pill(v.greenSoft, v.green)}>✓ Default</span>
+            </div>
+          </div>
+
+          {/* Cancel-anytime note */}
+          <div style={{ padding: "16px 20px 0" }}>
+            <div style={{ ...Card({ padding: 12, background: "rgba(220,239,226,0.5)" }), display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <span style={{ fontSize: 14 }}>↩️</span>
+              <div style={{ fontSize: 11, color: v.inkSoft, lineHeight: 1.5 }}>
+                Cancel anytime from your Profile. We'll continue serving the cycle you've already paid for.
+              </div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div style={{ padding: "20px 20px 0" }}>
+            <button onClick={() => setConfirmed(true)} style={{ ...BtnPrimary({ background: plan.accent, boxShadow: `0 4px 14px ${plan.accent}40` }) }}>
+              Confirm & Pay ₹{Math.round(price * 1.18).toLocaleString("en-IN")}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: SEARCH (global)
     // ═══════════════════════════════════════════════════════
@@ -2184,14 +2554,14 @@
                 style={{ flex: 1, border: "none", background: "transparent", fontSize: 14, outline: "none", color: v.ink, fontFamily: "inherit" }} />
             </div>
           </div>
- 
+
           <div style={SectionLabel}>Filters</div>
           <div style={{ padding: "0 20px", display: "flex", gap: 8, flexWrap: "wrap" }}>
             {["Service type", "Distance", "Rating", "Tier", "Specialty"].map(f => (
               <span key={f} style={Pill("rgba(255,255,255,0.8)", v.inkSoft, { border: `1px solid ${v.border}`, padding: "6px 14px", fontSize: 12 })}>{f}</span>
             ))}
           </div>
- 
+
           <div style={SectionLabel}>Recent searches</div>
           <div style={{ padding: "0 20px" }}>
             {recent.map(r => (
@@ -2202,7 +2572,7 @@
               </div>
             ))}
           </div>
- 
+
           <div style={SectionLabel}>Trending in your area</div>
           <div style={{ padding: "0 20px" }}>
             {[
@@ -2223,7 +2593,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: SERVICES HUB
     // ═══════════════════════════════════════════════════════
@@ -2235,7 +2605,7 @@
             <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 28, color: v.ink, letterSpacing: "-0.02em" }}>Services</div>
             <div style={{ fontSize: 13, color: v.inkMuted, marginTop: 4 }}>Pick what you need. We'll handle the rest.</div>
           </div>
- 
+
           {/* Metabolic featured */}
           <div style={{ padding: "4px 20px 0" }}>
             <div onClick={() => navigate(USER.metabolicActive ? "metabolic-dashboard" : "metabolic")} style={{
@@ -2254,7 +2624,7 @@
               </div>
             </div>
           </div>
- 
+
           <div style={SectionLabel}>On-demand services</div>
           <div style={{ padding: "0 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {QUICK_SERVICES.map(s => {
@@ -2277,7 +2647,7 @@
               );
             })}
           </div>
- 
+
           <div style={SectionLabel}>Wellness</div>
           <div style={{ padding: "0 20px 20px" }}>
             {[
@@ -2299,7 +2669,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // SCREEN: PROFILE
     // ═══════════════════════════════════════════════════════
@@ -2310,7 +2680,7 @@
           <div style={{ padding: "6px 20px 14px" }}>
             <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 28, color: v.ink, letterSpacing: "-0.02em" }}>Profile</div>
           </div>
- 
+
           {/* Profile card */}
           <div style={{ padding: "0 20px 14px" }}>
             <div style={Card({ padding: 18, display: "flex", alignItems: "center", gap: 14 })}>
@@ -2327,7 +2697,7 @@
               </div>
             </div>
           </div>
- 
+
           {/* My programs */}
           {USER.metabolicActive && (
             <>
@@ -2348,7 +2718,7 @@
               </div>
             </>
           )}
- 
+
           <div style={SectionLabel}>Account</div>
           <div style={{ padding: "0 20px" }}>
             {[
@@ -2373,7 +2743,7 @@
         </div>
       );
     }
- 
+
     // ═══════════════════════════════════════════════════════
     // APP ROOT & ROUTER
     // ═══════════════════════════════════════════════════════
@@ -2382,16 +2752,21 @@
       const [screenData, setScreenData] = useState(null);
       const [history, setHistory] = useState([]);
       const [tab, setTab] = useState("home");
- 
+
       const mainTabs = ["home", "search", "services", "profile"];
- 
+
+      // Reset scroll to top whenever the screen changes
+      useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      }, [screen]);
+
       const navigate = (s, data = null) => {
         setHistory(h => [...h, { screen, screenData }]);
         setScreen(s);
         setScreenData(data);
         if (mainTabs.includes(s)) setTab(s);
       };
- 
+
       const goBack = () => {
         if (!history.length) {
           setScreen("home");
@@ -2404,27 +2779,29 @@
         setScreenData(prev.screenData);
         if (mainTabs.includes(prev.screen)) setTab(prev.screen);
       };
- 
+
       const onTabChange = (t) => {
         setHistory([]);
         setScreen(t);
         setScreenData(null);
         setTab(t);
       };
- 
+
       const isChatScreen = screen === "metabolic-coach";
- 
+
       return (
         <div style={{ position: "relative", minHeight: "100vh", width: "100%", maxWidth: 430, margin: "0 auto" }}>
           {/* Aurora pastel background — always present */}
           <div className="aurora-bg" />
- 
+
           <div style={{ position: "relative", zIndex: 1 }}>
             {screen === "home" && <HomeScreen navigate={navigate} />}
             {screen === "search" && <SearchScreen navigate={navigate} />}
             {screen === "services" && <ServicesScreen navigate={navigate} />}
             {screen === "profile" && <ProfileScreen navigate={navigate} />}
             {screen === "notifications" && <NotificationsScreen navigate={navigate} goBack={goBack} />}
+            {screen === "plans" && <PlansScreen navigate={navigate} goBack={goBack} />}
+            {screen === "plans-checkout" && <PlansCheckoutScreen navigate={navigate} goBack={goBack} data={screenData} />}
             {screen === "metabolic" && <MetabolicLandingScreen navigate={navigate} goBack={goBack} />}
             {screen === "metabolic-eligibility" && <MetabolicEligibilityScreen navigate={navigate} goBack={goBack} />}
             {screen === "metabolic-checkout" && <MetabolicCheckoutScreen navigate={navigate} goBack={goBack} />}
@@ -2440,12 +2817,12 @@
             {screen === "service-track" && <ServiceTrackScreen navigate={navigate} goBack={goBack} data={screenData} />}
             {screen === "service-done" && <ServiceDoneScreen navigate={navigate} data={screenData} />}
           </div>
- 
+
           {!isChatScreen && <BottomNav tab={tab} onChange={onTabChange} />}
         </div>
       );
     }
- 
+
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
